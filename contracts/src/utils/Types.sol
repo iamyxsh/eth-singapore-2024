@@ -13,19 +13,16 @@ struct Order {
     bool isFulfilled;
 }
 
-struct LiguidityGroup {
+struct LiquidityGroup {
     uint256 lpId;
     address lpAddress;
-    address primaryToken;
-    uint256 minPrice;
-    uint256 maxPrice;
-    uint256 availablePrimaryBalance;
+    LiquidityToken primaryToken;
 }
 
-struct TradingTokenGroup {
+struct LiquidityToken {
     uint256 lpId;
-    address tradeToken;
+    address token;
     uint256 minPrice;
     uint256 maxPrice;
-    uint256 availableTradingBalance;
+    uint256 availableBalance;
 }

@@ -1,6 +1,6 @@
 node_modules
 dist
 build
-contracts/cache
 contracts/lib/*
-contracts/out
+contracts/cache/*
+contracts/out/*

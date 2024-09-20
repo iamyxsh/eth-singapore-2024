@@ -38,12 +38,162 @@ contract LiquidityManagerTest is Test {
         uint256 amount = 1 ether;
         vm.prank(address1);
         token.approve(address(liquidityManager), amount);
+    }
 
-        liquidityManager.depositTokens(address1, address(token), amount, 1);
+    function test_CreateLP() public {
+        IERC20 primary = IERC20(tokenAddresses[0]);
+
+        uint256 amount = 1 ether;
+        vm.prank(address1);
+        primary.approve(address(liquidityManager), amount);
+
+        address[] memory tradingTokens = new address[](2);
+        for (uint i = 0; i < 2; i++) {
+            tradingTokens[i] = tokenAddresses[i];
+        }
+
+        uint256[] memory minPrices = new uint256[](2);
+        for (uint i = 0; i < 2; i++) {
+            minPrices[i] = 1;
+        }
+
+        uint256[] memory maxPrices = new uint256[](2);
+        for (uint i = 0; i < 2; i++) {
+            minPrices[i] = 2;
+        }
+
+        vm.prank(address1);
+        liquidityManager.createLiquidityPosition(
+            address(primary),
+            1,
+            2,
+            1 ether,
+            tradingTokens,
+            minPrices,
+            maxPrices
+        );
+
+        assertEq(liquidityManager.getLiquidityPosition(1).lpAddress, address1);
+        assertEq(
+            liquidityManager.getLiquidityPosition(1).primaryToken.minPrice,
+            1
+        );
+        assertEq(
+            liquidityManager.getLiquidityPosition(1).primaryToken.maxPrice,
+            2
+        );
+        assertEq(
+            liquidityManager.getLiquidityPosition(1).primaryToken.token,
+            address(primary)
+        );
+    }
+
+    function test_RemoveLP() public {
+        IERC20 primary = IERC20(tokenAddresses[0]);
+
+        assertEq(primary.balanceOf(address1), 1 ether);
+
+        uint256 amount = 1 ether;
+        vm.prank(address1);
+        primary.approve(address(liquidityManager), amount);
+
+        address[] memory tradingTokens = new address[](2);
+        for (uint i = 0; i < 2; i++) {
+            tradingTokens[i] = tokenAddresses[i];
+        }
+
+        uint256[] memory minPrices = new uint256[](2);
+        for (uint i = 0; i < 2; i++) {
+            minPrices[i] = 1;
+        }
+
+        uint256[] memory maxPrices = new uint256[](2);
+        for (uint i = 0; i < 2; i++) {
+            minPrices[i] = 2;
+        }
+
+        vm.prank(address1);
+        liquidityManager.createLiquidityPosition(
+            address(primary),
+            1,
+            2,
+            1 ether,
+            tradingTokens,
+            minPrices,
+            maxPrices
+        );
+
+        assertEq(primary.balanceOf(address1), 0);
+
+        vm.prank(address1);
+        liquidityManager.removeLiquidityPosition(1, tradingTokens, address1);
+
+        assertEq(primary.balanceOf(address1), amount);
+    }
+
+    function updateLP() public {
+        IERC20 primary = IERC20(tokenAddresses[0]);
+
+        uint256 amount = 1 ether;
+        vm.prank(address1);
+        primary.approve(address(liquidityManager), amount);
+
+        address[] memory tradingTokens = new address[](2);
+        for (uint i = 0; i < 2; i++) {
+            tradingTokens[i] = tokenAddresses[i];
+        }
+
+        uint256[] memory minPrices = new uint256[](2);
+        for (uint i = 0; i < 2; i++) {
+            minPrices[i] = 1;
+        }
+
+        uint256[] memory maxPrices = new uint256[](2);
+        for (uint i = 0; i < 2; i++) {
+            minPrices[i] = 2;
+        }
+
+        vm.prank(address1);
+        liquidityManager.createLiquidityPosition(
+            address(primary),
+            1,
+            2,
+            1 ether,
+            tradingTokens,
+            minPrices,
+            maxPrices
+        );
+
+        vm.prank(address1);
+        liquidityManager.updateLiquidityPosition(
+            1,
+            0.5 ether,
+            true,
+            true,
+            address(0)
+        );
 
         assertEq(
-            liquidityManager.getDepositedToken(1, address(token)),
-            1 ether
+            liquidityManager
+                .getLiquidityPosition(1)
+                .primaryToken
+                .availableBalance,
+            0.5 ether
+        );
+
+        liquidityManager.updateLiquidityPosition(
+            1,
+            0.5 ether,
+            false,
+            false,
+            tradingTokens[0]
+        );
+
+        assertEq(
+            liquidityManager
+                .getTradingToken(1, tradingTokens[0])
+                .availableBalance,
+            0.5 ether
         );
     }
 }
