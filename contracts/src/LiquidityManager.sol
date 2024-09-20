@@ -6,7 +6,7 @@ import {IERC20} from "@openzeppelin/contracts/interfaces/IERC20.sol";
 
 error TokenVault__TokenTransferFailed();
 
-contract TokenVault {
+contract LiquidityManager {
     // --------- State ---------
 
     // Supported Token Address => Yes/No

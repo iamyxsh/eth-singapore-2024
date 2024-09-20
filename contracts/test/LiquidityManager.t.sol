@@ -2,20 +2,20 @@
 pragma solidity ^0.8.13;
 
 import {Test, console} from "forge-std/Test.sol";
-import {TokenVault} from "../src/TokenVault.sol";
+import {LiquidityManager} from "../src/LiquidityManager.sol";
 import {IERC20} from "@openzeppelin/contracts/interfaces/IERC20.sol";
 import {TestUtils} from "../script/utils/TestUtils.sol";
 
 contract TokenVaultTest is Test {
     TestUtils testUtils;
 
-    TokenVault public tokenVault;
+    LiquidityManager public liquidityManager;
 
     address[] public tokenAddresses;
 
     address address1 = address(1);
 
-    function setUp() public returns (TokenVault) {
+    function setUp() public returns (LiquidityManager) {
         testUtils = new TestUtils();
 
         address[] memory testTokens = new address[](5);
@@ -24,23 +24,26 @@ contract TokenVaultTest is Test {
             tokenAddresses.push(testTokens[i]);
         }
 
-        tokenVault = new TokenVault(testTokens);
+        liquidityManager = new LiquidityManager(testTokens);
 
-        return tokenVault;
+        return liquidityManager;
     }
 
     function test_Init() public view {
-        assertEq(tokenVault.isTokenSupported(tokenAddresses[0]), true);
+        assertEq(liquidityManager.isTokenSupported(tokenAddresses[0]), true);
     }
 
     function test_Tokendeposit() public {
         IERC20 token = IERC20(tokenAddresses[0]);
         uint256 amount = 1 ether;
         vm.prank(address1);
-        token.approve(address(tokenVault), amount);
+        token.approve(address(liquidityManager), amount);
 
-        tokenVault.depositTokens(address1, address(token), amount, 1);
+        liquidityManager.depositTokens(address1, address(token), amount, 1);
 
-        assertEq(tokenVault.getDepositedToken(1, address(token)), 1 ether);
+        assertEq(
+            liquidityManager.getDepositedToken(1, address(token)),
+            1 ether
+        );
     }
 }
