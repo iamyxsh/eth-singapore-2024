@@ -3,9 +3,8 @@ pragma solidity ^0.8.13;
 
 // --------- Errors ---------
 
-contract Counter {
+contract Orderbook {
     // --------- State ---------
-    uint256 public number;
 
     constructor() {}
 
@@ -15,13 +14,9 @@ contract Counter {
 
     // --------- Setter Functions ---------
 
-    function setNumber(uint256 newNumber) public {
-        number = newNumber;
-    }
+    function setNumber(uint256 newNumber) public {}
 
     // --------- Getter Functions ---------
 
-    function increment() public {
-        number++;
-    }
+    function increment() public {}
 }
