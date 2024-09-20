@@ -15,6 +15,7 @@ struct Order {
 
 struct LiguidityGroup {
     uint256 lpId;
+    address lpAddress;
     address primaryToken;
     uint256 minPrice;
     uint256 maxPrice;

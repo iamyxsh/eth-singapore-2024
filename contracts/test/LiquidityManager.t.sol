@@ -6,7 +6,7 @@ import {LiquidityManager} from "../src/LiquidityManager.sol";
 import {IERC20} from "@openzeppelin/contracts/interfaces/IERC20.sol";
 import {TestUtils} from "../script/utils/TestUtils.sol";
 
-contract TokenVaultTest is Test {
+contract LiquidityManagerTest is Test {
     TestUtils testUtils;
 
     LiquidityManager public liquidityManager;
