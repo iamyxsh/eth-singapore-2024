@@ -16,16 +16,22 @@
 import { ethers } from 'ethers'
 import dotenv from 'dotenv'
 import mongoose, { ConnectOptions } from 'mongoose'
-import { saveUser } from './userService'
-
+// import { createLiquidityPosition, removeLiquidity, saveUser } from './userService'
+import {
+  testCreateUser,
+  testCreateLiquidityPosition, testRemoveLiquidity, testCreateOrder, testMatchOrder,
+  testRepScoreMinted,
+  testDxtrStaked,
+  testDxtrUnStaked
+} from './testingScript'
 
 dotenv.config()
 
 async function main() {
   // Connect to MongoDB
   await mongoose.connect(process.env.MONGODB_URI as string, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
+    // useNewUrlParser: true,
+    // useUnifiedTopology: true,
     // } as typeof ConnectOptions)
   } as ConnectOptions)
 
@@ -58,10 +64,16 @@ async function main() {
   //   console.log(`Listening for UserRegistered events on ${contractAddress}...`)
 
   //TESTING
-  const user = "0x1234567890"
-  saveUser(user) // Call the save function
 
-  //same for addLiquidity, addOrders, removeLiquidity, matchOrders, repScoreMinted, dxtrStaked, dxtrUnstaked, 
+  // testCreateUser()
+  // testCreateLiquidityPosition()
+  // testRemoveLiquidity()
+  // testCreateOrder()
+  // testMatchOrder()
+  // testRepScoreMinted()
+  // testDxtrStaked()
+  // testDxtrUnStaked()
+
 
 }
 

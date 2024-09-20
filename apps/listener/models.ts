@@ -1,7 +1,7 @@
 import mongoose, { Schema, Document } from 'mongoose'
 
 // Interfaces
-interface ILiquidityToken {
+interface ILiquidityToken extends Document {
   contractAddress: string
   isPrimary: boolean
   minPrice: number
@@ -9,21 +9,21 @@ interface ILiquidityToken {
   availableBalance: number
 }
 
-interface IFeeEarned {
+interface IFeeEarned extends Document {
   tokenAddress: string
   feeAmount: number
 }
 
-interface ILiquidityPosition {
-  positionId: string
-  tokens: ILiquidityToken[]
+interface ILiquidityPosition extends Document {
+  positionId: number
+  tokens: Partial<ILiquidityToken>[] // Ensure this references the interface correctly
   feeEarned: IFeeEarned[]
 }
 
-interface IOrder {
+interface IOrder extends Document {
   orderId: string
   orderType: 'LIMIT' | 'MARKET'
-  matchedLPId: string
+  matchedLPId: number
   tokenInAddress: string
   tokenOutAddress: string
   tokenOutPrice: number
@@ -34,9 +34,9 @@ interface IOrder {
 
 interface IUser extends Document {
   address: string
-  liquidityPositions: ILiquidityPosition[]
+  liquidityPositions: Partial<ILiquidityPosition>[]
   repScore: number
-  orders: IOrder[]
+  orders: Partial<IOrder>[]
   stakedAmount: number
 }
 
@@ -55,15 +55,15 @@ const feeEarnedSchema = new Schema<IFeeEarned>({
 })
 
 const liquidityPositionSchema = new Schema<ILiquidityPosition>({
-  positionId: { type: String, required: true },
-  tokens: [liquidityTokenSchema],
-  feeEarned: [feeEarnedSchema],
+  positionId: { type: Number, required: true, unique: true },
+  tokens: { type: [liquidityTokenSchema], required: true }, // Corrected to use Schema directly
+  feeEarned: { type: [feeEarnedSchema], default: [] }, // Default to empty array
 })
 
 const orderSchema = new Schema<IOrder>({
-  orderId: { type: String, required: true },
+  orderId: { type: String, required: true, unique: true },
   orderType: { type: String, enum: ['LIMIT', 'MARKET'], required: true },
-  matchedLPId: { type: String, required: true },
+  matchedLPId: { type: Number, required: false },
   tokenInAddress: { type: String, required: true },
   tokenOutAddress: { type: String, required: true },
   tokenOutPrice: { type: Number, required: true },
@@ -75,12 +75,29 @@ const orderSchema = new Schema<IOrder>({
 // User Schema
 const userSchema = new Schema<IUser>({
   address: { type: String, required: true, unique: true },
-  liquidityPositions: [liquidityPositionSchema],
+  liquidityPositions: { type: [liquidityPositionSchema], default: [] }, // Default to empty array
   repScore: { type: Number, default: 0 },
-  orders: [orderSchema],
+  orders: { type: [orderSchema], default: [] }, // Default to empty array
   stakedAmount: { type: Number, default: 0 },
 })
 
+// Models
+const LiquidityToken = mongoose.model<ILiquidityToken>('LiquidityToken', liquidityTokenSchema)
+const FeeEarned = mongoose.model<IFeeEarned>('FeeEarned', feeEarnedSchema)
+const LiquidityPosition = mongoose.model<ILiquidityPosition>('LiquidityPosition', liquidityPositionSchema)
+const Order = mongoose.model<IOrder>('Order', orderSchema)
 const User = mongoose.model<IUser>('User', userSchema)
 
-export { User, IUser }
+// Export Models
+export {
+  User,
+  LiquidityToken,
+  FeeEarned,
+  LiquidityPosition,
+  Order,
+  IUser,
+  ILiquidityToken,
+  IFeeEarned,
+  ILiquidityPosition,
+  IOrder,
+}
