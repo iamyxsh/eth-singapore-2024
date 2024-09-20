@@ -1,50 +1,47 @@
-// models.ts
-
-const { Schema } = mongoose
-
+import mongoose, { Schema, Document } from 'mongoose'
 
 // Interfaces
-const ILiquidityToken = {
-  contractAddress: String,
-  isPrimary: Boolean,
-  minPrice: Number,
-  maxPrice: Number,
-  availableBalance: Number,
+interface ILiquidityToken {
+  contractAddress: string
+  isPrimary: boolean
+  minPrice: number
+  maxPrice: number
+  availableBalance: number
 }
 
-const IFeeEarned = {
-  tokenAddress: String,
-  feeAmount: Number,
+interface IFeeEarned {
+  tokenAddress: string
+  feeAmount: number
 }
 
-const ILiquidityPosition = {
-  positionId: String,
-  tokens: [ILiquidityToken],
-  feeEarned: [IFeeEarned],
+interface ILiquidityPosition {
+  positionId: string
+  tokens: ILiquidityToken[]
+  feeEarned: IFeeEarned[]
 }
 
-const IOrder = {
-  orderId: String,
-  orderType: { type: String, enum: ['LIMIT', 'MARKET'] },
-  matchedLPId: String,
-  tokenInAddress: String,
-  tokenOutAddress: String,
-  tokenOutPrice: Number,
-  tokenInPrice: Number,
-  tokenInAmount: Number,
-  tokenOutAmount: Number,
+interface IOrder {
+  orderId: string
+  orderType: 'LIMIT' | 'MARKET'
+  matchedLPId: string
+  tokenInAddress: string
+  tokenOutAddress: string
+  tokenOutPrice: number
+  tokenInPrice: number
+  tokenInAmount: number
+  tokenOutAmount: number
 }
 
-const IUser = {
-  address: { type: String, required: true, unique: true },
-  liquidityPositions: [ILiquidityPosition],
-  repScore: { type: Number, default: 0 },
-  orders: [IOrder],
-  stakedAmount: { type: Number, default: 0 },
+interface IUser extends Document {
+  address: string
+  liquidityPositions: ILiquidityPosition[]
+  repScore: number
+  orders: IOrder[]
+  stakedAmount: number
 }
 
 // Schemas
-const liquidityTokenSchema = new Schema({
+const liquidityTokenSchema = new Schema<ILiquidityToken>({
   contractAddress: { type: String, required: true },
   isPrimary: { type: Boolean, required: true },
   minPrice: { type: Number, required: true },
@@ -52,18 +49,18 @@ const liquidityTokenSchema = new Schema({
   availableBalance: { type: Number, required: true },
 })
 
-const feeEarnedSchema = new Schema({
+const feeEarnedSchema = new Schema<IFeeEarned>({
   tokenAddress: { type: String, required: true },
   feeAmount: { type: Number, required: true },
 })
 
-const liquidityPositionSchema = new Schema({
+const liquidityPositionSchema = new Schema<ILiquidityPosition>({
   positionId: { type: String, required: true },
   tokens: [liquidityTokenSchema],
   feeEarned: [feeEarnedSchema],
 })
 
-const orderSchema = new Schema({
+const orderSchema = new Schema<IOrder>({
   orderId: { type: String, required: true },
   orderType: { type: String, enum: ['LIMIT', 'MARKET'], required: true },
   matchedLPId: { type: String, required: true },
@@ -76,8 +73,14 @@ const orderSchema = new Schema({
 })
 
 // User Schema
-const userSchema = new Schema(IUser)
+const userSchema = new Schema<IUser>({
+  address: { type: String, required: true, unique: true },
+  liquidityPositions: [liquidityPositionSchema],
+  repScore: { type: Number, default: 0 },
+  orders: [orderSchema],
+  stakedAmount: { type: Number, default: 0 },
+})
 
-const User = mongoose.model('User', userSchema)
+const User = mongoose.model<IUser>('User', userSchema)
 
-module.exports = { User }
+export { User, IUser }

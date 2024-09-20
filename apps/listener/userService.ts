@@ -1,7 +1,5 @@
 // userService.ts
-// import { User } from './models'
-// import { User } from "./models.ts"
-const { User } = require('./models')
+import { User } from './models'
 
 const saveUser = async (userAddress: string): Promise<void> => {
   try {
