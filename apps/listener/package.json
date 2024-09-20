@@ -1,0 +1,17 @@
+{
+  "name": "listener",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "ts-node-dev index.ts --watch"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "tsc-watch": "^6.2.0",
+    "ts-node-dev": "^2.0.0"
+  },
+  "dependencies": {}
+}
