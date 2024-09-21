@@ -24,6 +24,7 @@ if (!process.env.MODE || process.env.MODE === 'TEST') {
 }
 
 async function main() {
+  console.log('eunniong clients')
   const adminSigner = getAdminSigner()
   const oracleMock = new MockOracle(CHAIN_ID, MOCK_ORACLE_ADDRESS, adminSigner)
 
@@ -64,7 +65,7 @@ async function main() {
   ])
 
   //console.log(await oracleMock.getPrice(19, 89, 1))
-  console.log(await oracleMock.getPrice(28, 89, 1))
+  // console.log(await oracleMock.getPrice(28, 89, 1))
 }
 
 const calculateDerivedPrice = (pairId: number[], pairPrice: number[]) => {
@@ -78,13 +79,13 @@ const calculateDerivedPrice = (pairId: number[], pairPrice: number[]) => {
     parseInt(((bnbUSDT / (usdcUSD * 1e10)) * 1e18).toString())
   )
 
-  const maticUsdc = BigInt((maticUSD / usdcUSD) * 1e18)
-  const ethUsdc = BigInt((ethUSD / usdcUSD) * 1e18)
+  const maticUsdc = BigInt(Math.floor(maticUSD / usdcUSD) * 1e18)
+  const ethUsdc = BigInt(Math.floor(ethUSD / usdcUSD) * 1e18)
   const maticBnb = BigInt(
     parseInt(((((maticUSD * 1e18) / bnbUSDT) * 1e18) / 1e18).toString())
   )
-  const ethMatic = BigInt((ethUSD / maticUSD) * 1e18)
-  const ethBnb = BigInt(((ethUSD * 1e10) / bnbUSDT) * 1e18)
+  const ethMatic = BigInt(Math.floor(ethUSD / maticUSD) * 1e18)
+  const ethBnb = BigInt((Math.floor(ethUSD * 1e10) / bnbUSDT) * 1e18)
 
   const pairIds1 = [49, 28, 19, 28, 19, 19]
   const pairIds2 = [89, 89, 89, 49, 28, 49]
