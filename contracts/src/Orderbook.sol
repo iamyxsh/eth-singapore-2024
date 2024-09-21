@@ -1,10 +1,11 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.13;
+pragma solidity ^0.8.20;
 
 import {Order} from "./utils/Types.sol";
 import {console} from "forge-std/console.sol";
 import {LiquidityManager} from "./LiquidityManager.sol";
 import {MockERC20} from "./mocks/MockERC20.sol";
+import {MockOracleClient} from "./mocks/MockOracleClient.sol";
 import {Order, LiquidityGroup, LiquidityToken} from "./utils/Types.sol";
 
 // --------- Errors ---------
@@ -15,15 +16,19 @@ error Orderbook__TokenTransferFailed();
 contract Orderbook {
     // --------- State ---------
 
+    mapping(address => uint256) public priceIndex;
+
     LiquidityManager immutable lpManager;
+    MockOracleClient immutable oracleClient;
 
     uint256 public totalOrders = 1;
 
     // orderId -> orders
     mapping(uint256 => Order) private orders;
 
-    constructor(address _lpManager) {
+    constructor(address _lpManager, address _oracleClient) {
         lpManager = LiquidityManager(_lpManager);
+        oracleClient = MockOracleClient(_oracleClient);
     }
 
     // --------- Events ---------

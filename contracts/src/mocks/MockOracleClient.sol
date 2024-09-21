@@ -1,13 +1,13 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity 0.8.7;
+pragma solidity 0.8.20;
 
 import "../interface/ISupraSValueFeed.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
 error OracleClient__InvaildOp();
 
-contract OracleClientMock is Ownable {
+contract MockOracleClient is Ownable {
     struct priceFeedData {
         uint256 round;
         uint256 decimals;
@@ -26,8 +26,8 @@ contract OracleClientMock is Ownable {
     mapping(uint256 => priceFeedData) priceFeedIndex;
     mapping(uint256 => mapping(uint256 => derivedPriceData)) derivedPriceFeedIndex;
 
-    constructor(ISupraSValueFeed _sValueFeed) {
-        sValueFeed = _sValueFeed;
+    constructor(address _sValueFeed) Ownable(msg.sender) {
+        sValueFeed = ISupraSValueFeed(_sValueFeed);
     }
 
     function updateSupraSvalueFeed(
@@ -42,7 +42,7 @@ contract OracleClientMock is Ownable {
 
     function getPrice(
         uint256 _priceIndex
-    ) external view override returns (uint256 price, uint256 decimals) {
+    ) external view returns (uint256 price, uint256 decimals) {
         return (
             priceFeedIndex[_priceIndex].price,
             priceFeedIndex[_priceIndex].decimals
@@ -53,7 +53,7 @@ contract OracleClientMock is Ownable {
         uint256 pair_id_1,
         uint256 pair_id_2,
         uint256 operation
-    ) external view override returns (uint256 price, uint256 decimals) {
+    ) external view returns (uint256 price, uint256 decimals) {
         if (operation != 0 && operation != 1) revert OracleClient__InvaildOp();
         price = derivedPriceFeedIndex[pair_id_1][pair_id_2].derivedPrice;
         decimals = derivedPriceFeedIndex[pair_id_1][pair_id_2].decimals;

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.7;
+pragma solidity 0.8.20;
 // depending on the requirement, you may build one or more data structures given below.
 
 interface ISupraSValueFeed {
