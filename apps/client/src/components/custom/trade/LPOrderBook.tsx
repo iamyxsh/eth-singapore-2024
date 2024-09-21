@@ -25,15 +25,21 @@ interface Store {
 const useStore = create<Store>((set) => ({
   sellOrderData: [],
   pairPrices: [],
-  selectedPair: "USDC/WETH",
+  selectedPair: "1",
   setSellOrderData: (data) => set({ sellOrderData: data }),
   setPairPrices: (data) => set({ pairPrices: data }),
   setSelectedPair: (pair) => set({ selectedPair: pair }),
 }));
 
 const LpOrderBook: React.FC = () => {
-  const { sellOrderData, setSellOrderData, pairPrices, setPairPrices, selectedPair, setSelectedPair } =
-    useStore();
+  const {
+    sellOrderData,
+    setSellOrderData,
+    pairPrices,
+    setPairPrices,
+    selectedPair,
+    setSelectedPair,
+  } = useStore();
 
   const primaryToken = "USDC";
   const [primaryLiquidity, setPrimaryLiquidity] = useState<number>(0);
@@ -44,14 +50,25 @@ const LpOrderBook: React.FC = () => {
     { groupId: "3", quantity: 15 },
   ];
 
-  const dummyPairPrices: PairPrice[] = [
-    { primary: primaryToken, secondary: "WETH", liquidity: 320 },
-    { primary: primaryToken, secondary: "WBTC", liquidity: 150 },
-    { primary: primaryToken, secondary: "DEXTR", liquidity: 200 },
-  ];
+  const pairPriceOptions: Record<string, PairPrice[]> = {
+    "1": [
+      { primary: primaryToken, secondary: "WETH", liquidity: 320 },
+      { primary: primaryToken, secondary: "WBTC", liquidity: 150 },
+      { primary: primaryToken, secondary: "DEXTR", liquidity: 200 },
+    ],
+    "4": [
+      { primary: primaryToken, secondary: "DAI", liquidity: 400 },
+      { primary: primaryToken, secondary: "USDT", liquidity: 250 },
+    ],
+    "5": [
+      { primary: primaryToken, secondary: "LINK", liquidity: 100 },
+      { primary: primaryToken, secondary: "MATIC", liquidity: 300 },
+    ],
+  };
 
   const handlePairChange = (value: string) => {
     setSelectedPair(value);
+    setPairPrices(pairPriceOptions[value] || []);
   };
 
   useEffect(() => {
@@ -59,8 +76,8 @@ const LpOrderBook: React.FC = () => {
     setPrimaryLiquidity(
       dummySellOrders.reduce((total, order) => total + order.quantity, 0)
     );
-    setPairPrices(dummyPairPrices);
-  }, [setSellOrderData, setPairPrices]);
+    setPairPrices(pairPriceOptions[selectedPair]); // Set initial pair prices
+  }, [setSellOrderData, setPairPrices, selectedPair]);
 
   return (
     <div className="rounded-2xl border border-gray-700 bg-bgPrimary p-2 h-full overflow-auto ">
@@ -70,12 +87,9 @@ const LpOrderBook: React.FC = () => {
         </button>
         <CustomDropdown
           items={[
-            { value: "USDC/WETH", label: "USDC/WETH" },
-            { value: "USDC/WBTC", label: "USDC/WBTC" },
-            { value: "USDC/DEXTR", label: "USDC/DEXTR" },
-            { value: "WETH/DEXTR", label: "WETH/DEXTR" },
-            { value: "WETH/USDC", label: "WETH/USDC" },
-            { value: "WBTC/USDC", label: "WBTC/USDC" },
+            { value: "1", label: "1" },
+            { value: "4", label: "4" },
+            { value: "5", label: "5" },
           ]}
           value={selectedPair}
           onChange={handlePairChange}
@@ -110,11 +124,9 @@ const LpOrderBook: React.FC = () => {
             </tr>
           </thead>
           <tbody>
-            {dummyPairPrices.map((pair) => (
+            {pairPrices.map((pair) => (
               <tr key={pair.secondary}>
-                <td className="py-1 font-semibold text-left">
-                  {pair.secondary}
-                </td>
+                <td className="py-1 font-semibold text-left">{pair.secondary}</td>
                 <td className="py-1 text-right">{pair.liquidity.toFixed(2)}</td>
               </tr>
             ))}
@@ -123,9 +135,7 @@ const LpOrderBook: React.FC = () => {
       </div>
 
       <div className="mt-5 flex justify-center ">
-        {/* <Button className="min-w-full">
-          Place Order
-        </Button> */}
+        {/* <Button className="min-w-full">Place Order</Button> */}
       </div>
     </div>
   );
