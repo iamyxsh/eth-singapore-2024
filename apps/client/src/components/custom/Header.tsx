@@ -9,10 +9,17 @@ import { useState } from "react";
 import ManageLiquidity from "@/pages/ManageLiquidity";
 import Stake from "@/pages/Stake";
 import useContract from "@/hooks/useContract";
-import { dummyABI } from "@/data/dummyAbi";
+import UserRegistryABI from '../../../.././../packages/shared/abis//UserRegistryABI.json';
+import DextrAbi from '../../../.././../packages/shared/abis/MockERC20ABI.json';
+import AddLiquidityAbi from "../../../.././../packages/shared/abis/LiquidityManagerABI.json"
+import stakeAbi from "../../../.././../packages/shared/abis/StakeABI.json"
+import { useContractStore } from "@/stores/contract/contractStore";
+import { ethers } from "ethers";
+import { userRegistryContractAddress, dextrContractAddress, usdcContractAddress, wethContractAddress, wbtcContractAddress, stakeDextrContractAddress, addLiquidityAbiContractAddress } from "@/constants/contractAddresses";
 
-const contractAddress = "0x4dC9a75DA9D44e3C8B26e5B7C6f03418a31E8eA4"; // Example test contract address (replace with a valid test contract address if needed)
-
+// Connect Wallet (X)
+// Approval to Dextr of 100 tokens (100) (dxtrContract.approval(userRegistryContractAddress, ethers.parseEther(100))) ( )
+// Call User Registry contract with call registerUser() ( ) 
 
 const HeaderWithTabs = () => {
   const connectedWalletAddress = useWalletStore((state) => state.address);
@@ -20,25 +27,41 @@ const HeaderWithTabs = () => {
   const setWallet = useWalletStore((state) => state.setWallet);
   const disconnect = useWalletStore((state) => state.disconnect);
   const [activeTab, setActiveTab] = useState("trade");
+  const userRegistryContract = useContractStore((state) => state.contracts['userRegistry'])
+  const dextrContract = useContractStore((state) => state.contracts['dextr'])
 
-    // Initialize the contract with the hook
-  useContract(contractAddress, dummyABI);
+  // Initialize multiple contracts
+  useContract("userRegistry", userRegistryContractAddress, UserRegistryABI);
+  useContract("dextr", dextrContractAddress, DextrAbi);
+  useContract("usdcContract", usdcContractAddress, DextrAbi)
+  useContract('wethContract', wethContractAddress, DextrAbi)
+  useContract('wbtcContract', wbtcContractAddress, DextrAbi)
+  useContract('stakeDextrContract', stakeDextrContractAddress, stakeAbi)
+  useContract('addLiquidityContract', addLiquidityAbiContractAddress, AddLiquidityAbi)
+
 
   const handleConnect = async () => {
     const wallets = await onboard.connectWallet();
-
+  
     if (wallets.length) {
       const connectedWallet = wallets[0];
       const address = connectedWallet.accounts[0].address;
       const chainId = connectedWallet.chains[0]?.id;
-
+  
       setWallet(address, chainId);
-
+  
       await onboard.setChain({ chainId: "0x7A69" });
+  
+      const isRegistered = await userRegistryContract!.isUserRegistered(connectedWallet.accounts?.[0]?.address!);
+      if(!isRegistered){
+        await userRegistryContract!.registerUser();
+        await dextrContract!.approve(userRegistryContractAddress, ethers.parseEther('100'));
+      }
     } else {
       console.log("No wallet connected");
     }
   };
+  
 
   const handleLogout = () => {
     disconnect();
