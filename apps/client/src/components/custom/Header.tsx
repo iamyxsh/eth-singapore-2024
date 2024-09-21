@@ -10,12 +10,14 @@ import ManageLiquidity from "@/pages/ManageLiquidity"
 import Stake from "@/pages/Stake"
 import useContract from "@/hooks/useContract"
 import UserRegistryABI from '../../../.././../packages/shared/abis//UserRegistryABI.json'
+import liquidityManagerABI from '../../../.././../packages/shared/abis/LiquidityManagerABI.json'
 import DextrAbi from '../../../.././../packages/shared/abis/MockERC20ABI.json'
 import AddLiquidityAbi from "../../../.././../packages/shared/abis/LiquidityManagerABI.json"
+import OrderbookABI from "../../../.././../packages/shared/abis/OrderbookABI.json"
 import stakeAbi from "../../../.././../packages/shared/abis/StakeABI.json"
 import { useContractStore } from "@/stores/contract/contractStore"
 import { ethers } from "ethers"
-import { userRegistryContractAddress, dextrContractAddress, usdcContractAddress, wethContractAddress, wbtcContractAddress, stakeDextrContractAddress, addLiquidityAbiContractAddress } from "@/constants/contractAddresses"
+import { userRegistryContractAddress, dextrContractAddress, usdcContractAddress, wethContractAddress, wbtcContractAddress, stakeDextrContractAddress, addLiquidityAbiContractAddress, orderContractAddress } from "@/constants/contractAddresses"
 
 // Connect Wallet (X)
 // Approval to Dextr of 100 tokens (100) (dxtrContract.approval(userRegistryContractAddress, ethers.parseEther(100))) ( )
@@ -38,7 +40,7 @@ const HeaderWithTabs = () => {
   useContract('wbtcContract', wbtcContractAddress, DextrAbi)
   useContract('stakeDextrContract', stakeDextrContractAddress, stakeAbi)
   useContract('addLiquidityContract', addLiquidityAbiContractAddress, AddLiquidityAbi)
-  useContract('marketOrderContract', orderContractAddress, orderContractAbi)
+  useContract('orderContractAddress', orderContractAddress, OrderbookABI)
 
 
   const handleConnect = async () => {

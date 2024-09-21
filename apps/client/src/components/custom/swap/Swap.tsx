@@ -1,10 +1,10 @@
-import React, { useEffect, useState } from "react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Token, useStore } from "./useSwapStore";
-import { useContractStore } from "@/stores/contract/contractStore";
-import { BrowserProvider, ethers } from "ethers";
-import useWalletStore from "@/stores/walletStore";
-import { orderContractAddress, userRegistryContractAddress, wethContractAddress } from "@/constants/contractAddresses";
+import React, { useEffect, useState } from "react"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Token, useStore } from "./useSwapStore"
+import { useContractStore } from "@/stores/contract/contractStore"
+import { BrowserProvider, ethers } from "ethers"
+import useWalletStore from "@/stores/walletStore"
+import { orderContractAddress, userRegistryContractAddress, wethContractAddress } from "@/constants/contractAddresses"
 
 const SwapComponent: React.FC = () => {
   const {
@@ -23,123 +23,129 @@ const SwapComponent: React.FC = () => {
     setBuyCurrency,
     setSellBalance,
     setBuyBalance,
-  } = useStore();
-  const [activeTab, setActiveTab] = useState("Market");
-  const { signer } = useContractStore();
-  const connectedWalletAddress = useWalletStore((state) => state.address);
+  } = useStore()
+  const [activeTab, setActiveTab] = useState("Market")
+  const { signer } = useContractStore()
+  const connectedWalletAddress = useWalletStore((state) => state.address)
 
-  const marketOrderContract = useContractStore(
-    (state) => state.contracts["marketOrderContract"]
-  );
-  const dextrContract = useContractStore((state) => state.contracts["dextr"]);
+  const orderbookContract = useContractStore(
+    (state) => state.contracts["orderContractAddress"]
+  )
+  const dextrContract = useContractStore((state) => state.contracts["dextr"])
   const usdcContract = useContractStore(
     (state) => state.contracts["usdcContract"]
-  );
+  )
   const wethContract = useContractStore(
     (state) => state.contracts["wethContract"]
-  );
+  )
   const wbtchContract = useContractStore(
     (state) => state.contracts["wbtcContract"]
-  );
+  )
 
   const fetchUsersTokensHoldings = async (token: string) => {
-    let contract;
+    let contract
 
     switch (token) {
       case "DEXTR":
-        contract = dextrContract;
-        break;
+        contract = dextrContract
+        break
       case "USDC":
-        contract = usdcContract;
-        break;
+        contract = usdcContract
+        break
       case "WETH":
-        contract = wethContract;
-        break;
+        contract = wethContract
+        break
       case "WBTC":
-        contract = wbtchContract;
-        break;
+        contract = wbtchContract
+        break
       default:
-        window.alert("Invalid token selected");
-        return;
+        window.alert("Invalid token selected")
+        return
     }
 
-    const balanceOf = await contract!.balanceOf(connectedWalletAddress);
-    return ethers.formatEther(balanceOf);
-  };
+    const balanceOf = await contract!.balanceOf(connectedWalletAddress)
+    return ethers.formatEther(balanceOf)
+  }
 
   const handleSellAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSellAmount(Number(e.target.value));
-  };
+    setSellAmount(Number(e.target.value))
+  }
 
   const handleSellPriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (activeTab === "Limit") {
-      setSellPrice(Number(e.target.value));
+      setSellPrice(Number(e.target.value))
     }
-  };
+  }
 
   const handleSellCurrencyChange = (
     e: React.ChangeEvent<HTMLSelectElement>
   ) => {
-    setSellCurrency(e.target.value as Token);
-  };
+    setSellCurrency(e.target.value as Token)
+  }
 
   const handleBuyCurrencyChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setBuyCurrency(e.target.value as Token);
-  };
+    setBuyCurrency(e.target.value as Token)
+  }
 
   // Placeholder options for tokens
-  const tokenOptions: Token[] = ["WBTC", "WETH", "DEXTR", "USDC"];
+  const tokenOptions: Token[] = ["WBTC", "WETH", "DEXTR", "USDC"]
 
   const placeMarketOrder = async () => {
-    if (marketOrderContract) {
+    console.log("orderbook", orderbookContract)
+    if (orderbookContract) {
       try {
-        const inTokenAddress = sellCurrency; // replace with actual token address
-        const outTokenAddress = buyCurrency; // replace with actual token address
-        const amount = sellAmount;
+        const inTokenAddress = sellCurrency // replace with actual token address
+        const outTokenAddress = buyCurrency // replace with actual token address
+        const amount = sellAmount
 
         // console.log({ inTokenAddress, outTokenAddress });
-console.log("balance of",await dextrContract!.allowance(await signer?.getAddress(), orderContractAddress))
-          await dextrContract!.approve(
+        console.log("balance of", await dextrContract!.balanceOf(await signer?.getAddress()))
+        console.log("allowance", await dextrContract!.allowance(await signer?.getAddress(), orderContractAddress))
+        await dextrContract!.approve(
           orderContractAddress,
           ethers.parseEther("20")
-        );
-   
-        const tx = await marketOrderContract.placeMarketOrder(
-   await       dextrContract?.getAddress(),
-   wethContractAddress,
-          ethers.parseEther("20")
-        );
+        )
 
-        await tx.wait(); // wait for the transaction to be mined
+
+
+        console.log("appovr completed")
+
+        const tx = await orderbookContract.placeMarketOrder(
+          await dextrContract?.getAddress(),
+          wethContractAddress,
+          ethers.parseEther("20")
+        )
+
+        await tx.wait() // wait for the transaction to be mined
         // Handle successful transaction (e.g., show a notification)
       } catch (error) {
-        console.error("Error placing market order:", error);
+        console.error("Error placing market order:", error)
         // Handle error (e.g., show an error notification)
       }
     }
-  };
+  }
 
   // Update balance when sellCurrency changes
   useEffect(() => {
     const updateSellBalance = async () => {
-      const balance = await fetchUsersTokensHoldings(sellCurrency);
-      setSellBalance(Number(balance)); // Set the fetched balance in the Zustand store
-    };
-    if (sellCurrency) {
-      updateSellBalance();
+      const balance = await fetchUsersTokensHoldings(sellCurrency)
+      setSellBalance(Number(balance)) // Set the fetched balance in the Zustand store
     }
-  }, [sellCurrency, connectedWalletAddress]);
+    if (sellCurrency) {
+      updateSellBalance()
+    }
+  }, [sellCurrency, connectedWalletAddress])
 
   // Update balance when buyCurrency changes
   useEffect(() => {
     const updateBuyBalance = async () => {
-      const balance = await fetchUsersTokensHoldings(buyCurrency);
-      setBuyBalance(Number(balance)); // Set the fetched balance in the Zustand store
-    };
-    if (buyCurrency) {
-      updateBuyBalance();
+      const balance = await fetchUsersTokensHoldings(buyCurrency)
+      setBuyBalance(Number(balance)) // Set the fetched balance in the Zustand store
     }
-  }, [buyCurrency, connectedWalletAddress]);
+    if (buyCurrency) {
+      updateBuyBalance()
+    }
+  }, [buyCurrency, connectedWalletAddress])
 
   return (
     <div className="w-full flex justify-center">
@@ -311,15 +317,14 @@ console.log("balance of",await dextrContract!.allowance(await signer?.getAddress
         {/* Place Order Button */}
         <button
           onClick={activeTab === "Market" ? placeMarketOrder : undefined}
-          className={`w-full bg-primary text-white py-3 rounded-lg mt-4 ${
-            activeTab === "OCO" ? "hidden" : "block"
-          }`}
+          className={`w-full bg-primary text-white py-3 rounded-lg mt-4 ${activeTab === "OCO" ? "hidden" : "block"
+            }`}
         >
           {activeTab === "Market" ? "Place Market Order" : "Place Limit Order"}
         </button>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default SwapComponent;
+export default SwapComponent

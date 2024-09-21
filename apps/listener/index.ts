@@ -47,7 +47,7 @@ async function main() {
   //   console.log("🚀 ~ process.env.CONTRACT_ADDRESS:", contractAddress)
 
   //   // Create contract instance
-  const contract = new ethers.Contract("0xf953b3a269d80e3eb0f2947630da976b896a8c5b", orderBookAbi, provider)
+  const contract = new ethers.Contract("0x59b670e9fA9D0A427751Af201D676719a970857b", orderBookAbi, provider)
 
   contract.on("Orderbook__OrderPlaced", (...params) => {
     console.log("params Orderbook__OrderPlaced", params)
