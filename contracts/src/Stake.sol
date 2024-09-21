@@ -13,11 +13,11 @@ contract StakeDextr is Ownable {
     event StakeDextr__Staked(address user, uint256 amount);
     event StakeDextr__Unstaked(address user, uint256 amount);
 
-    ERC20 public immutable stakingToken; // Token to be staked
-    uint256 public totalStaked; // Total amount staked
-    mapping(address => uint256) public userStake; // Amount staked per user
+    ERC20 public immutable stakingToken;
+    uint256 public totalStaked;
+    mapping(address => uint256) public userStake;
 
-    ERC20 public immutable rewardsToken; // Token used as rewards
+    ERC20 public immutable rewardsToken;
 
     constructor(ERC20 _stakingToken, ERC20 _rewardsToken) Ownable(msg.sender) {
         stakingToken = _stakingToken;
