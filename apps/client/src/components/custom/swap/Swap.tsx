@@ -130,23 +130,21 @@ const SwapComponent: React.FC = () => {
         console.log("allowance", await dextrContract!.allowance(await signer?.getAddress(), orderContractAddress))
         await dextrContract!.approve(
           orderContractAddress,
-          ethers.parseEther("20")
+          ethers.parseEther("100")
         )
 
 
-        console.log("approve completed")
-
-        // const tx = await orderbookContract.placeMarketOrder(
-        //   await dextrContract?.getAddress() 
-        //   wethContractAddress 
-        //   ethers.parseEther("20")
-        // )
-
-        // await tx.wait()
-        // Handle successful transaction (e.g., show a notification)
+        const tx = await orderbookContract.placeMarketOrder(
+          outTokenAddress,
+          inTokenAddress ,
+          amount
+        )
+        await tx.wait()
+        window.alert("Order submitted successfully")
       } catch (error) {
         console.error("Error placing market order:", error)
         // Handle error (e.g., show an error notification)
+        window.alert("Order submission failed")
       }
     }
   }

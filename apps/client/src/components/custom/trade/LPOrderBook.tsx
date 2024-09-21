@@ -25,7 +25,7 @@ interface Store {
 const useStore = create<Store>((set) => ({
   sellOrderData: [],
   pairPrices: [],
-  selectedPair: "BNB/USDC",
+  selectedPair: "USDC/WETH",
   setSellOrderData: (data) => set({ sellOrderData: data }),
   setPairPrices: (data) => set({ pairPrices: data }),
   setSelectedPair: (pair) => set({ selectedPair: pair }),
@@ -35,19 +35,19 @@ const LpOrderBook: React.FC = () => {
   const { sellOrderData, setSellOrderData, pairPrices, setPairPrices, selectedPair, setSelectedPair } =
     useStore();
 
-  const primaryToken = "BNB";
+  const primaryToken = "USDC";
   const [primaryLiquidity, setPrimaryLiquidity] = useState<number>(0);
 
   const dummySellOrders: Order[] = [
-    { groupId: "1", quantity: 10 },
-    { groupId: "2", quantity: 5 },
+    { groupId: "1", quantity: 25 },
+    { groupId: "2", quantity: 40 },
+    { groupId: "3", quantity: 15 },
   ];
 
   const dummyPairPrices: PairPrice[] = [
-    { primary: primaryToken, secondary: "ETH", liquidity: 100 },
-    { primary: primaryToken, secondary: "USDT", liquidity: 200 },
-    { primary: primaryToken, secondary: "ADA", liquidity: 150 },
-    { primary: primaryToken, secondary: "DOT", liquidity: 75 },
+    { primary: primaryToken, secondary: "WETH", liquidity: 320 },
+    { primary: primaryToken, secondary: "WBTC", liquidity: 150 },
+    { primary: primaryToken, secondary: "DEXTR", liquidity: 200 },
   ];
 
   const handlePairChange = (value: string) => {
@@ -63,19 +63,19 @@ const LpOrderBook: React.FC = () => {
   }, [setSellOrderData, setPairPrices]);
 
   return (
-    <div className="rounded-2xl border border-gray-700 bg-bgPrimary p-2  h-full overflow-auto ">
-      <div className="flex items-center justify-between rounded-2xl bg-bgPrimary px-3 py-1 font-primary text-base font-semibold mt-1">
+    <div className="rounded-2xl border border-gray-700 bg-bgPrimary p-2 h-full overflow-auto ">
+      <div className="flex items-center justify-between rounded-2xl bg-bgPrimary px-3 py-1 font-primary text-lg font-semibold mt-1">
         <button className="rounded-lg px-2 py-0.5 bg-buttonPrimary text-whiteTextPrimary">
           LP
         </button>
         <CustomDropdown
           items={[
-            { value: "BNB/USDC", label: "BNB/USDC" },
-            { value: "ETH/USDC", label: "ETH/USDC" },
-            { value: "DXTR/USDC", label: "DXTR/USDC" },
-            { value: "ETH/DXTR", label: "ETH/DXTR" },
-            { value: "DXTR/BNB", label: "DXTR/BNB" },
-            { value: "ETH/BNB", label: "ETH/BNB" },
+            { value: "USDC/WETH", label: "USDC/WETH" },
+            { value: "USDC/WBTC", label: "USDC/WBTC" },
+            { value: "USDC/DEXTR", label: "USDC/DEXTR" },
+            { value: "WETH/DEXTR", label: "WETH/DEXTR" },
+            { value: "WETH/USDC", label: "WETH/USDC" },
+            { value: "WBTC/USDC", label: "WBTC/USDC" },
           ]}
           value={selectedPair}
           onChange={handlePairChange}
@@ -85,10 +85,10 @@ const LpOrderBook: React.FC = () => {
       </div>
 
       <div className="mt-5 px-3.5">
-        <table className="w-full table-fixed min-w-[220px] text-xs">
+        <table className="w-full table-fixed min-w-[220px] text-sm">
           <thead>
             <tr>
-              <th className="text-left font-semibold">Token(Primary Token)</th>
+              <th className="text-left font-semibold">Token (Primary Token)</th>
               <th className="text-right font-semibold">Available Liquidity</th>
             </tr>
           </thead>
@@ -102,12 +102,10 @@ const LpOrderBook: React.FC = () => {
       </div>
 
       <div className="mt-5 px-3.5">
-        <table className="w-full table-fixed min-w-[220px] text-xs">
+        <table className="w-full table-fixed min-w-[220px] text-sm">
           <thead>
             <tr>
-              <th className="text-left font-semibold">
-                Token(Secondary Tokens)
-              </th>
+              <th className="text-left font-semibold">Token (Secondary Tokens)</th>
               <th className="text-right font-semibold">Available Liquidity</th>
             </tr>
           </thead>
