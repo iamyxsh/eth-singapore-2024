@@ -1,6 +1,9 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useContractStore } from "@/stores/contract/contractStore";
+import { useEffect, useState } from "react";
 
 const AllPairs = () => {
+  
   const usdPriceData = [
     { pair: "WBTC/USD", price: "$30,000" },
     { pair: "WETH/USD", price: "$2,000" },
@@ -16,11 +19,39 @@ const AllPairs = () => {
     { pair: "WBTC/USDC", price: "15" },
     { pair: "WETH/USDC", price: "60,000" },
     { pair: "DEXTR/USDC", price: "4,000" },
+
   ];
+  
+  const oracleContract = useContractStore((state) => state.contracts['oracleContract']);
+  const [usdPrices, setUsdPrices] = useState<{ pair: string; price: string }[]>([]);
+
+
+
+  const pairIndexes = {
+    "WBTC/USD": 18,
+    "WETH/USD": 19,
+    "DXTR/USD": 197,
+    "USDC/USD": 89,
+  };
+
+  const fetchPairPrices = async () => {
+    const pricePromises = Object.entries(pairIndexes).map(async ([pair, index]) => {
+      const amount = await oracleContract!.getPairPrice(index);
+      return { pair, price: `$${amount.toString()}` }; // Adjust formatting as needed
+    });
+
+    const prices = await Promise.all(pricePromises);
+    setUsdPrices(prices);
+  };
+  useEffect(() => {
+    if (oracleContract) {
+      fetchPairPrices();
+    }
+  }, [oracleContract]);
 
   return (
     <div className="shadow-lg border border-gray-700 px-2 rounded-xl  h-full">
-      <Tabs defaultValue="usd-price" className="mb-4">
+      <Tabs defaultValue="usd-price" className="mb-2 mt-4">
         <TabsList className="flex space-x-4 border border-primary !bg-gray-800">
           <TabsTrigger
             value="usd-price"
@@ -41,7 +72,7 @@ const AllPairs = () => {
               <span>Pair</span>
               <span>Price</span>
             </div>
-            {usdPriceData.map((item, index) => (
+            {usdPrices.map((item, index) => (
               <div
                 key={index}
                 className="flex justify-between p-2 border-b border-b-gray-500"

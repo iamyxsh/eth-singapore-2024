@@ -63,8 +63,8 @@ const LpOrderBook: React.FC = () => {
   }, [setSellOrderData, setPairPrices]);
 
   return (
-    <div className="rounded-2xl border border-gray-700 bg-bgPrimary p-2  h-full overflow-auto">
-      <div className="flex items-center justify-between rounded-2xl bg-bgPrimary px-3 py-1 font-primary text-base font-semibold">
+    <div className="rounded-2xl border border-gray-700 bg-bgPrimary p-2  h-full overflow-auto ">
+      <div className="flex items-center justify-between rounded-2xl bg-bgPrimary px-3 py-1 font-primary text-base font-semibold mt-1">
         <button className="rounded-lg px-2 py-0.5 bg-buttonPrimary text-whiteTextPrimary">
           LP
         </button>

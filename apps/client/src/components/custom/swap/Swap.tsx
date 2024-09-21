@@ -42,6 +42,31 @@ const SwapComponent: React.FC = () => {
     (state) => state.contracts["wbtcContract"]
   )
 
+
+  const fetchTokenAddress = (token:string) =>{
+    let contract
+    switch (token) {
+      case "DEXTR":
+        contract = dextrContract
+        break
+      case "USDC":
+        contract = usdcContract
+        break
+      case "WETH":
+        contract = wethContract
+        break
+      case "WBTC":
+        contract = wbtchContract
+        break
+      default:
+        window.alert("Invalid token selected")
+        return
+    }
+
+    return contract?.getAddress();
+
+  }
+
   const fetchUsersTokensHoldings = async (token: string) => {
     let contract
 
@@ -94,9 +119,11 @@ const SwapComponent: React.FC = () => {
     console.log("orderbook", orderbookContract)
     if (orderbookContract) {
       try {
-        const inTokenAddress = sellCurrency // replace with actual token address
-        const outTokenAddress = buyCurrency // replace with actual token address
-        const amount = sellAmount
+        const inTokenAddress = await fetchTokenAddress(sellCurrency) // replace with actual token address
+        const outTokenAddress =await fetchTokenAddress(buyCurrency) // replace with actual token address
+        const amount = ethers.parseEther(buyAmount.toString());
+
+        console.log({inTokenAddress, outTokenAddress, amount}, "EEEEEEEE")
 
         // console.log({ inTokenAddress, outTokenAddress });
         console.log("balance of", await dextrContract!.balanceOf(await signer?.getAddress()))
@@ -107,16 +134,15 @@ const SwapComponent: React.FC = () => {
         )
 
 
+        console.log("approve completed")
 
-        console.log("appovr completed")
+        // const tx = await orderbookContract.placeMarketOrder(
+        //   await dextrContract?.getAddress() 
+        //   wethContractAddress 
+        //   ethers.parseEther("20")
+        // )
 
-        const tx = await orderbookContract.placeMarketOrder(
-          await dextrContract?.getAddress(),
-          wethContractAddress,
-          ethers.parseEther("20")
-        )
-
-        await tx.wait() // wait for the transaction to be mined
+        // await tx.wait()
         // Handle successful transaction (e.g., show a notification)
       } catch (error) {
         console.error("Error placing market order:", error)
@@ -149,7 +175,7 @@ const SwapComponent: React.FC = () => {
 
   return (
     <div className="w-full flex justify-center">
-      <div className="flex flex-col items-center w-full justify-center bg-background shadow-xl border border-gray-700 text-white p-6 rounded-lg ">
+      <div className="flex flex-col items-center w-full justify-center bg-background shadow-xl border border-gray-700 text-white p-6 pt-4 rounded-lg ">
         {/* Tabs for Market and Limit */}
         <Tabs defaultValue="Market" className="w-full">
           <TabsList className="flex space-x-4 border border-primary !bg-gray-800">
