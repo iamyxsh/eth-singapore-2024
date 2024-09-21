@@ -8,6 +8,7 @@ import {DxtrRep} from "../../src/DxtrRep.sol";
 import {Orderbook} from "../../src/Orderbook.sol";
 import {StakeDextr} from "../../src/Stake.sol";
 import {MockOracleClient} from "../../src/mocks/MockOracleClient.sol";
+import {UserRegistry} from "../../src/UserRegistry.sol";
 
 uint8 constant NUM_TOKENS = 4;
 
@@ -71,6 +72,26 @@ contract DeployAllTokens is Script {
 
         StakeDextr stake = new StakeDextr(dxtr, repSBT);
         console.log("StakeDextr deployed at:", address(stake));
+
+
+        UserRegistry userRegistry = new UserRegistry(dxtr, address(stake));
+        console.log("UserRegistry deployed at:", address(userRegistry));
+
+
+        address[5] memory recipients = [
+            0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266, // Replace with valid addresses
+            0x70997970C51812dc3A010C7d01b50e0d17dc79C8,
+            0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC,
+            0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65,
+            0x9965507D1a55bcC2695C58ba16FB37d819B0A4dc
+        ];
+        uint256 amountToMint = 1000 * 10**18; // Amount of tokens to mint per address
+
+        for (uint i = 0; i < recipients.length; i++) {
+            dxtr.mint(recipients[i], amountToMint);
+            uint256 balance = dxtr.balanceOf(recipients[i]);
+            console.log("Balance of recipient", recipients[i], ":", balance);
+        }
 
         // Stop broadcasting
         vm.stopBroadcast();
