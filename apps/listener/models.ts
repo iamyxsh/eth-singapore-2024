@@ -18,6 +18,7 @@ interface ILiquidityPosition extends Document {
   positionId: number
   tokens: Partial<ILiquidityToken>[] // Ensure this references the interface correctly
   feeEarned: IFeeEarned[]
+  userAddress: string
 }
 
 interface IOrder extends Document {
@@ -58,6 +59,7 @@ const liquidityPositionSchema = new Schema<ILiquidityPosition>({
   positionId: { type: Number, required: true, unique: true },
   tokens: { type: [liquidityTokenSchema], required: true }, // Corrected to use Schema directly
   feeEarned: { type: [feeEarnedSchema], default: [] }, // Default to empty array
+  userAddress: { type: String, required: true },
 })
 
 const orderSchema = new Schema<IOrder>({

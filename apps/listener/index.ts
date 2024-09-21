@@ -66,7 +66,7 @@ async function main() {
   //TESTING
 
   // testCreateUser()
-  // testCreateLiquidityPosition()
+  testCreateLiquidityPosition()
   // testRemoveLiquidity()
   // testCreateOrder()
   // testMatchOrder()

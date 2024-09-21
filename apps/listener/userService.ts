@@ -55,6 +55,7 @@ const createLiquidityPosition = async (
       positionId: lpId,
       tokens: tokens,
       feeEarned: [],
+      userAddress: userAddress
     })
 
     // Save the liquidity position to the database
@@ -147,6 +148,9 @@ const createOrder = async (
     // Save the updated user document
     await user.save()
     console.log(`Order created for user: ${userAddress} with orderId: ${orderId}`)
+
+    // Emit the LimitOrderCreated or MarketOrderCreated event in kafka
+
   } catch (error: any) {
     console.error(`Error creating order: ${error.message}`)
   }
