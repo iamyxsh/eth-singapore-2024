@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.13;
+pragma solidity ^0.8.20;
 
 import {Test, console} from "forge-std/Test.sol";
 import {Orderbook} from "../src/Orderbook.sol";
@@ -21,7 +21,7 @@ contract OrderbookTest is Test {
     function setUp() public returns (Orderbook) {
         testUtils = new TestUtils();
         lpManager = new LiquidityManagerTest().setUp();
-        orderbook = new Orderbook(address(lpManager));
+        orderbook = new Orderbook(address(lpManager), address(1));
 
         inToken = testUtils.returnErc20();
         outToken = testUtils.returnErc20();
