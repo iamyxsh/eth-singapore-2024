@@ -13,7 +13,7 @@ contract LiquidityManager {
     uint256 public totalLP = 1;
 
     // Supported Token Address => Yes/No
-    mapping(address => bool) private supportedTokens;
+    mapping(address => uint256) private supportedTokens;
 
     // LP Id => LP Info
     mapping(uint256 => LiquidityGroup) private liquidityPositions;
@@ -22,18 +22,32 @@ contract LiquidityManager {
     mapping(uint256 => mapping(address => LiquidityToken))
         private tradingTokens;
 
-    constructor(address[] memory _supportedTokens) {
+    constructor(address[] memory _supportedTokens, uint256[] memory _pairIds) {
         for (uint i = 0; i < _supportedTokens.length; i++) {
-            supportedTokens[_supportedTokens[i]] = true;
+            supportedTokens[_supportedTokens[i]] = _pairIds[i];
         }
     }
 
     // --------- Events ---------
 
-    event TokenVault__TokenDepositedEvent(
-        address _token,
-        uint256 _amount,
-        uint256 _lpId
+    event TokenVault__LiquidityPositionCreated(
+        address user,
+        uint256 lpId,
+        address primaryToken,
+        uint256 minPrice,
+        uint256 maxPrice,
+        uint256 amount,
+        address[] tradingTokens,
+        uint256[] tradingMinTokens,
+        uint256[] tradingMaxTokens
+    );
+
+    event TokenVault__LiquidityPositionRemoved(address user, uint256 lpId);
+    event TokenVault__LiquidityPositionUpdated(
+        address user,
+        uint256 lpId,
+        address token,
+        uint256 amount
     );
 
     // --------- Modifiers ---------
@@ -78,6 +92,18 @@ contract LiquidityManager {
             tradingTokens[lpId][_tradingTokens[i]] = trading;
         }
         liquidityPositions[lpId] = lpGroup;
+
+        emit TokenVault__LiquidityPositionCreated(
+            msg.sender,
+            lpId,
+            _primaryToken,
+            _minPrice,
+            _maxPrice,
+            _amount,
+            _tradingTokens,
+            _tradingMinTokens,
+            _tradingMaxTokens
+        );
     }
 
     function removeLiquidityPosition(
@@ -109,6 +135,8 @@ contract LiquidityManager {
                 );
             }
         }
+
+        emit TokenVault__LiquidityPositionRemoved(msg.sender, _lpId);
     }
 
     function updateLiquidityPosition(
@@ -118,14 +146,18 @@ contract LiquidityManager {
         bool _isPrimary,
         address _tradingToken
     ) external {
+        LiquidityGroup memory liquidityPosition = getLiquidityPosition(_lpId);
         if (_isPrimary) {
-            LiquidityGroup memory liquidityPosition = getLiquidityPosition(
-                _lpId
-            );
             liquidityPosition.primaryToken.availableBalance = _deduct
                 ? liquidityPosition.primaryToken.availableBalance - _amount
                 : liquidityPosition.primaryToken.availableBalance + _amount;
             liquidityPositions[_lpId] = liquidityPosition;
+            emit TokenVault__LiquidityPositionUpdated(
+                liquidityPosition.lpAddress,
+                liquidityPosition.lpId,
+                liquidityPosition.primaryToken.token,
+                liquidityPosition.primaryToken.availableBalance
+            );
         } else {
             LiquidityToken memory tradingToken = getTradingToken(
                 _lpId,
@@ -135,6 +167,12 @@ contract LiquidityManager {
                 ? tradingToken.availableBalance - _amount
                 : tradingToken.availableBalance + _amount;
             tradingTokens[_lpId][_tradingToken] = tradingToken;
+            emit TokenVault__LiquidityPositionUpdated(
+                liquidityPosition.lpAddress,
+                liquidityPosition.lpId,
+                tradingToken.token,
+                tradingToken.availableBalance
+            );
         }
     }
 
@@ -159,7 +197,11 @@ contract LiquidityManager {
     function isTokenSupported(
         address _tokenAddress
     ) public view returns (bool) {
-        return supportedTokens[_tokenAddress];
+        return supportedTokens[_tokenAddress] == 0 ? false : true;
+    }
+
+    function getTokenPairId(address _token) public view returns (uint256) {
+        return supportedTokens[_token];
     }
 
     function getLiquidityPosition(

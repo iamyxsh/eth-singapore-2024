@@ -12,6 +12,7 @@ contract LiquidityManagerTest is Test {
     LiquidityManager public liquidityManager;
 
     address[] public tokenAddresses;
+    uint256[] public pairIds;
 
     address address1 = address(1);
 
@@ -19,12 +20,13 @@ contract LiquidityManagerTest is Test {
         testUtils = new TestUtils();
 
         address[] memory testTokens = new address[](5);
-        for (uint i = 0; i < 5; i++) {
+        for (uint256 i = 0; i < 4; i++) {
             testTokens[i] = address(testUtils.returnErc20());
             tokenAddresses.push(testTokens[i]);
+            pairIds[i] = i;
         }
 
-        liquidityManager = new LiquidityManager(testTokens);
+        liquidityManager = new LiquidityManager(testTokens, pairIds);
 
         return liquidityManager;
     }
