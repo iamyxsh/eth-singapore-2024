@@ -43,7 +43,7 @@ const SwapComponent: React.FC = () => {
 
   return (
     <div className="w-full flex justify-center">
-      <div className="flex flex-col items-center w-full justify-center bg-background shadow-xl border border-gray-700 text-white p-6 rounded-lg max-w-sm">
+      <div className="flex flex-col items-center w-full justify-center bg-background shadow-xl border border-gray-700 text-white p-6 rounded-lg">
         
         {/* Tabs for Market and Limit */}
         <Tabs defaultValue="Market" className="w-full">
@@ -76,7 +76,8 @@ const SwapComponent: React.FC = () => {
                   type="number"
                   value={sellAmount}
                   onChange={handleSellAmountChange}
-                  className="bg-transparent text-3xl focus:outline-none w-2/3"
+                  className="bg-transparent text-3xl focus:outline-none w-2/3 border-none"
+
                 />
 
                 {/* Token Selector */}

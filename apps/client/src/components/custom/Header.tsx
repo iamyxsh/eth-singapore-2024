@@ -1,19 +1,30 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Trade, Earn, Faucet, Portfolio } from "@/pages";
+import { Trade, Faucet } from "@/pages";
 import { Button } from "../ui/button";
 import { onboard } from "@/lib/web3Onboard";
 import useWalletStore from "@/stores/walletStore";
 import CustomDropdown from "./CustomDropdown";
 import shortenAddress from "@/lib/shortenAddress";
+import { useState } from "react";
+import ManageLiquidity from "@/pages/ManageLiquidity";
+import Stake from "@/pages/Stake";
+import useContract from "@/hooks/useContract";
+import { dummyABI } from "@/data/dummyAbi";
+
+const contractAddress = "0x4dC9a75DA9D44e3C8B26e5B7C6f03418a31E8eA4"; // Example test contract address (replace with a valid test contract address if needed)
+
 
 const HeaderWithTabs = () => {
   const connectedWalletAddress = useWalletStore((state) => state.address);
   const isWalletConnected = useWalletStore((state) => state.connected);
   const setWallet = useWalletStore((state) => state.setWallet);
   const disconnect = useWalletStore((state) => state.disconnect);
+  const [activeTab, setActiveTab] = useState("trade");
+
+    // Initialize the contract with the hook
+  useContract(contractAddress, dummyABI);
 
   const handleConnect = async () => {
-    // Connect the wallet first
     const wallets = await onboard.connectWallet();
 
     if (wallets.length) {
@@ -22,9 +33,7 @@ const HeaderWithTabs = () => {
       const chainId = connectedWallet.chains[0]?.id;
 
       setWallet(address, chainId);
-      console.log("Connected Wallet:", wallets[0].accounts[0].address);
 
-      // Now set the Amoy Testnet chain
       await onboard.setChain({ chainId: "0x13882" });
     } else {
       console.log("No wallet connected");
@@ -39,12 +48,17 @@ const HeaderWithTabs = () => {
     {
       value: connectedWalletAddress || "",
       label: shortenAddress(connectedWalletAddress!) || "Wallet Address",
-    }, // Fallback to empty string
+    },
     { value: "logout", label: "Log Out" },
   ];
 
+  const handleTabChange = (value: string) => {
+    setActiveTab(value);
+
+  };
+
   return (
-    <Tabs defaultValue="trade" className="flex flex-col h-screen ">
+    <Tabs value={activeTab} onValueChange={handleTabChange} className="flex flex-col h-screen ">
       <div className="sticky top-0 z-50 ">
         <nav className="flex items-center justify-between p-5 pl-2 mx-auto max-w-7xl">
           <p className="text-lg font-bold">
@@ -65,16 +79,16 @@ const HeaderWithTabs = () => {
                 Faucet
               </TabsTrigger>
               <TabsTrigger
-                value="earn"
+                value="manage-liquidity"
                 className="font-bold px-4 rounded-md data-[state=active]:bg-primary data-[state=active]:text-white data-[state=inactive]:bg-gray-800 data-[state=inactive]:text-gray-400"
               >
-                Earn
+                Manage Liquidity
               </TabsTrigger>
               <TabsTrigger
-                value="portfolio"
+                value="stake"
                 className="font-bold px-4 rounded-md data-[state=active]:bg-primary data-[state=active]:text-white data-[state=inactive]:bg-gray-800 data-[state=inactive]:text-gray-400"
               >
-                Portfolio
+                Stake
               </TabsTrigger>
             </TabsList>
           </div>
@@ -83,13 +97,13 @@ const HeaderWithTabs = () => {
               <CustomDropdown
                 value=""
                 items={dropdownItems}
-                placeholder="Wallet"
-                // label=""
+                placeholder={shortenAddress(connectedWalletAddress!) || ""}
                 onChange={(value) => {
                   if (value === "logout") {
                     handleLogout();
                   }
                 }}
+                className="rounded-xl"
               />
             </div>
           ) : (
@@ -98,7 +112,6 @@ const HeaderWithTabs = () => {
         </nav>
       </div>
 
-      {/* Tabs Content Section */}
       <div className="flex-1 overflow-auto px-4">
         <TabsContent value="trade">
           <Trade />
@@ -108,12 +121,12 @@ const HeaderWithTabs = () => {
           <Faucet />
         </TabsContent>
 
-        <TabsContent value="earn">
-          <Earn />
+        <TabsContent value="manage-liquidity">
+          <ManageLiquidity />
         </TabsContent>
 
-        <TabsContent value="portfolio">
-          <Portfolio />
+        <TabsContent value="stake">
+          <Stake />
         </TabsContent>
       </div>
     </Tabs>

@@ -70,19 +70,19 @@ const Trade = () => {
 
   return (
     <>
-      <div className="flex justify-between items-start">
-        <div className="w-1/4 min-h-[300px]">
+      <div className="grid grid-cols-3 gap-4 ">
+        <div className="min-w-full min-h-[300px]">
           <LpOrderBook />
         </div>
-        <div className="w-1/2 min-h-[300px]">
-          <RecentOrdersMatched orders={orders} />
+        <div className=" min-h-[300px]">
+          <Swap />
         </div>
-        <div className="w-1/4 min-h-[300px] ">
+        <div className="min-h-[300px] ">
           <AllPairs />
         </div>
       </div>
       <div className="flex w-full mt-4">
-        <Swap />
+        <RecentOrdersMatched orders={orders} />
       </div>
     </>
   );

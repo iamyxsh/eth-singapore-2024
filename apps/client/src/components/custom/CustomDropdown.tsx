@@ -19,6 +19,7 @@ interface CustomDropdownProps {
   label?: string;
   value: string; // Add the value prop
   onChange: (value: string) => void;
+  className?: string;
 }
 
 const CustomDropdown: React.FC<CustomDropdownProps> = ({
@@ -26,10 +27,13 @@ const CustomDropdown: React.FC<CustomDropdownProps> = ({
   placeholder,
   value, // Add the value prop
   onChange,
+  className = "",
 }) => {
   return (
-    <Select onValueChange={onChange} value={value}> 
-      <SelectTrigger className="min-w-[180px] flex items-center justify-between  border border-primary rounded-md shadow-md p-2 transition duration-200  cursor-pointer">
+    <Select onValueChange={onChange} value={value}>
+      <SelectTrigger
+        className={`min-w-[180px] flex items-center justify-between border border-primary rounded-md shadow-md p-2 transition duration-200 cursor-pointer ${className}`}
+      >
         <SelectValue placeholder={placeholder} />
         {/* Optional icon for dropdown indication */}
       </SelectTrigger>

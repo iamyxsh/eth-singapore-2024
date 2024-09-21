@@ -19,7 +19,7 @@ const AllPairs = () => {
   ];
 
   return (
-    <div className="shadow-lg border border-gray-700 px-2 rounded-xl ">
+    <div className="shadow-lg border border-gray-700 px-2 rounded-xl  h-full">
       <Tabs defaultValue="usd-price" className="mb-4">
         <TabsList className="flex space-x-4 border border-primary !bg-gray-800">
           <TabsTrigger

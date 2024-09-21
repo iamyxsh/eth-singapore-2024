@@ -35,13 +35,13 @@ const RecentOrdersMatched: React.FC<RecentOrdersMatchedProps> = ({
   }, [orders]);
 
   return (
-    <div className="w-full px-4  ">
+    <div className="w-full  border border-gray-700   rounded-xl">
       {/* <h2 className="text-xl font-semibold mb-4">Recent Orders Matched</h2> */}
-      <Table className="border border-gray-700 rounded-lg max-h-[300px] overflow-auto">
+      <Table className="border border-gray-700  ">
         <TableCaption className="text-gray-400">
           List of recently matched orders
         </TableCaption>
-        <TableHeader>
+        <TableHeader className="bg-gray-800 text-gray-300 py-2">
           <TableRow>
             <TableHead className="bg-gray-800 text-gray-300 py-2 ">
               Order ID
