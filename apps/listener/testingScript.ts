@@ -13,23 +13,23 @@ const testCreateUser = async () => {
   const user2 = TRADER_USER_ID
   const user3 = LP_USER_ID
 
-  saveUser(user) // Call the save function
+  // saveUser(user) // Call the save function
 
   // saveUser(user2) // Call the save function
-  // await saveUser(user3) // Call the save function
+  await saveUser(user3) // Call the save function
 
 
 }
 const testCreateLiquidityPosition = async () => {
   const userAddress = LP_USER_ID // Sample user address
   const lpId = 1 // Sample liquidity position ID
-  const primaryTokenAddress = "0xabcdefabcdefabcdefabcdefabcdefabcdefabcd" // Sample primary token address
-  const primaryTokenMinPrice = 100
-  const primaryTokenMaxPrice = 200
-  const primaryTokenAmount = 1000
+  const primaryTokenAddress = "0xethaddress" // Sample primary token address
+  const primaryTokenMinPrice = 3100
+  const primaryTokenMaxPrice = 3200
+  const primaryTokenAmount = 2
   const tradingTokenAddress = [
-    "0xabcdefabcdefabcdefabcdefabcdefabcdefabcd1", // Sample trading token address 1
-    "0xabcdefabcdefabcdefabcdefabcdefabcdefabcd2", // Sample trading token address 2
+    "0xsecondary1", // Sample trading token address 1
+    "0xsecondary2", // Sample trading token address 2
   ]
   const tradingTokenMinPrice = [50, 75] // Sample trading token min prices
   const tradingTokenMaxPrice = [150, 175] // Sample trading token max prices
