@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 
-export type Token = 'WBTC' | 'WETH' | 'DXTR' | 'USDC';
+export type Token = 'WBTC' | 'WETH' | 'DEXTR' | 'USDC';
 
 interface SwapState {
   sellAmount: number;

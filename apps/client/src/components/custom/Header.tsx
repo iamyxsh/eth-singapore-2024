@@ -13,9 +13,10 @@ import UserRegistryABI from '../../../.././../packages/shared/abis//UserRegistry
 import DextrAbi from '../../../.././../packages/shared/abis/MockERC20ABI.json';
 import AddLiquidityAbi from "../../../.././../packages/shared/abis/LiquidityManagerABI.json"
 import stakeAbi from "../../../.././../packages/shared/abis/StakeABI.json"
+import orderContractAbi from "../../../.././../packages/shared/abis/OrderbookABI.json"
 import { useContractStore } from "@/stores/contract/contractStore";
 import { ethers } from "ethers";
-import { userRegistryContractAddress, dextrContractAddress, usdcContractAddress, wethContractAddress, wbtcContractAddress, stakeDextrContractAddress, addLiquidityAbiContractAddress } from "@/constants/contractAddresses";
+import { userRegistryContractAddress, dextrContractAddress, usdcContractAddress, wethContractAddress, wbtcContractAddress, stakeDextrContractAddress, addLiquidityAbiContractAddress, orderContractAddress } from "@/constants/contractAddresses";
 
 // Connect Wallet (X)
 // Approval to Dextr of 100 tokens (100) (dxtrContract.approval(userRegistryContractAddress, ethers.parseEther(100))) ( )
@@ -38,6 +39,7 @@ const HeaderWithTabs = () => {
   useContract('wbtcContract', wbtcContractAddress, DextrAbi)
   useContract('stakeDextrContract', stakeDextrContractAddress, stakeAbi)
   useContract('addLiquidityContract', addLiquidityAbiContractAddress, AddLiquidityAbi)
+  useContract('marketOrderContract', orderContractAddress, orderContractAbi)
 
 
   const handleConnect = async () => {
@@ -48,19 +50,37 @@ const HeaderWithTabs = () => {
       const address = connectedWallet.accounts[0].address;
       const chainId = connectedWallet.chains[0]?.id;
   
+  
       setWallet(address, chainId);
   
-      await onboard.setChain({ chainId: "0x7A69" });
+      await onboard.setChain({ chainId: "0x7A69" }); // Ensure the chain ID is correct
   
-      const isRegistered = await userRegistryContract!.isUserRegistered(connectedWallet.accounts?.[0]?.address!);
-      if(!isRegistered){
-        await userRegistryContract!.registerUser();
-        await dextrContract!.approve(userRegistryContractAddress, ethers.parseEther('100'));
-      }
+      // Check if the user is registered
+      // const isRegistered = await userRegistryContract!.isUserRegistered(address);
+      // console.log("Is User Registered:", isRegistered);
+  
+      // if (!isRegistered) {
+      //   console.log("User not registered. Registering user...");
+  
+      //   // Approve the transaction if not registered
+      //   const tx = await dextrContract!.approve(
+      //     userRegistryContractAddress,
+      //     ethers.parseEther("100")
+      //   );
+      //   console.log("Approve transaction:", tx);
+      //   await tx.wait();
+  
+      //   // Register user
+      //   const registerTx = await userRegistryContract!.registerUser();
+      //   console.log("Register transaction:", registerTx);
+      //   await registerTx.wait();
+      //   console.log("User successfully registered.");
+      // } 
     } else {
       console.log("No wallet connected");
     }
   };
+  
   
 
   const handleLogout = () => {
