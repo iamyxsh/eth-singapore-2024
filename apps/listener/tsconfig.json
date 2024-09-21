@@ -2,9 +2,11 @@
   "compilerOptions": {
     "target": "ESNext",
     "module": "ESNext",
-    "moduleResolution": "Node",
+    "moduleResolution": "Node16",
     "esModuleInterop": true,
+    "resolveJsonModule": true,
     "skipLibCheck": true,
+    "resolvePackageJsonImports": true,
     "forceConsistentCasingInFileNames": true
   },
   "include": ["index.ts"],  // Adjust this if your files are in a different directory

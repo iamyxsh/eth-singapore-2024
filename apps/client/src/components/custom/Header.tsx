@@ -1,39 +1,38 @@
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Trade, Faucet } from "@/pages";
-import { Button } from "../ui/button";
-import { onboard } from "@/lib/web3Onboard";
-import useWalletStore from "@/stores/walletStore";
-import CustomDropdown from "./CustomDropdown";
-import shortenAddress from "@/lib/shortenAddress";
-import { useState } from "react";
-import ManageLiquidity from "@/pages/ManageLiquidity";
-import Stake from "@/pages/Stake";
-import useContract from "@/hooks/useContract";
-import UserRegistryABI from '../../../.././../packages/shared/abis//UserRegistryABI.json';
-import DextrAbi from '../../../.././../packages/shared/abis/MockERC20ABI.json';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Trade, Faucet } from "@/pages"
+import { Button } from "../ui/button"
+import { onboard } from "@/lib/web3Onboard"
+import useWalletStore from "@/stores/walletStore"
+import CustomDropdown from "./CustomDropdown"
+import shortenAddress from "@/lib/shortenAddress"
+import { useState } from "react"
+import ManageLiquidity from "@/pages/ManageLiquidity"
+import Stake from "@/pages/Stake"
+import useContract from "@/hooks/useContract"
+import UserRegistryABI from '../../../.././../packages/shared/abis//UserRegistryABI.json'
+import DextrAbi from '../../../.././../packages/shared/abis/MockERC20ABI.json'
 import AddLiquidityAbi from "../../../.././../packages/shared/abis/LiquidityManagerABI.json"
 import stakeAbi from "../../../.././../packages/shared/abis/StakeABI.json"
-import orderContractAbi from "../../../.././../packages/shared/abis/OrderbookABI.json"
-import { useContractStore } from "@/stores/contract/contractStore";
-import { ethers } from "ethers";
-import { userRegistryContractAddress, dextrContractAddress, usdcContractAddress, wethContractAddress, wbtcContractAddress, stakeDextrContractAddress, addLiquidityAbiContractAddress, orderContractAddress } from "@/constants/contractAddresses";
+import { useContractStore } from "@/stores/contract/contractStore"
+import { ethers } from "ethers"
+import { userRegistryContractAddress, dextrContractAddress, usdcContractAddress, wethContractAddress, wbtcContractAddress, stakeDextrContractAddress, addLiquidityAbiContractAddress } from "@/constants/contractAddresses"
 
 // Connect Wallet (X)
 // Approval to Dextr of 100 tokens (100) (dxtrContract.approval(userRegistryContractAddress, ethers.parseEther(100))) ( )
 // Call User Registry contract with call registerUser() ( ) 
 
 const HeaderWithTabs = () => {
-  const connectedWalletAddress = useWalletStore((state) => state.address);
-  const isWalletConnected = useWalletStore((state) => state.connected);
-  const setWallet = useWalletStore((state) => state.setWallet);
-  const disconnect = useWalletStore((state) => state.disconnect);
-  const [activeTab, setActiveTab] = useState("trade");
+  const connectedWalletAddress = useWalletStore((state) => state.address)
+  const isWalletConnected = useWalletStore((state) => state.connected)
+  const setWallet = useWalletStore((state) => state.setWallet)
+  const disconnect = useWalletStore((state) => state.disconnect)
+  const [activeTab, setActiveTab] = useState("trade")
   const userRegistryContract = useContractStore((state) => state.contracts['userRegistry'])
   const dextrContract = useContractStore((state) => state.contracts['dextr'])
 
   // Initialize multiple contracts
-  useContract("userRegistry", userRegistryContractAddress, UserRegistryABI);
-  useContract("dextr", dextrContractAddress, DextrAbi);
+  useContract("userRegistry", userRegistryContractAddress, UserRegistryABI)
+  useContract("dextr", dextrContractAddress, DextrAbi)
   useContract("usdcContract", usdcContractAddress, DextrAbi)
   useContract('wethContract', wethContractAddress, DextrAbi)
   useContract('wbtcContract', wbtcContractAddress, DextrAbi)
@@ -43,49 +42,32 @@ const HeaderWithTabs = () => {
 
 
   const handleConnect = async () => {
-    const wallets = await onboard.connectWallet();
-  
+    const wallets = await onboard.connectWallet()
+
     if (wallets.length) {
-      const connectedWallet = wallets[0];
-      const address = connectedWallet.accounts[0].address;
-      const chainId = connectedWallet.chains[0]?.id;
-  
-  
-      setWallet(address, chainId);
-  
-      await onboard.setChain({ chainId: "0x7A69" }); // Ensure the chain ID is correct
-  
-      // Check if the user is registered
-      // const isRegistered = await userRegistryContract!.isUserRegistered(address);
-      // console.log("Is User Registered:", isRegistered);
-  
-      // if (!isRegistered) {
-      //   console.log("User not registered. Registering user...");
-  
-      //   // Approve the transaction if not registered
-      //   const tx = await dextrContract!.approve(
-      //     userRegistryContractAddress,
-      //     ethers.parseEther("100")
-      //   );
-      //   console.log("Approve transaction:", tx);
-      //   await tx.wait();
-  
-      //   // Register user
-      //   const registerTx = await userRegistryContract!.registerUser();
-      //   console.log("Register transaction:", registerTx);
-      //   await registerTx.wait();
-      //   console.log("User successfully registered.");
-      // } 
+      const connectedWallet = wallets[0]
+      const address = connectedWallet.accounts[0].address
+      const chainId = connectedWallet.chains[0]?.id
+
+      setWallet(address, chainId)
+
+      await onboard.setChain({ chainId: "0x7A69" })
+
+      const isRegistered = await userRegistryContract!.isUserRegistered(connectedWallet.accounts?.[0]?.address!)
+      if (!isRegistered) {
+        const tx = await userRegistryContract!.registerUser()
+        await tx.wait()
+        await dextrContract!.approve(userRegistryContractAddress, ethers.parseEther('100'))
+      }
     } else {
-      console.log("No wallet connected");
+      console.log("No wallet connected")
     }
-  };
-  
-  
+  }
+
 
   const handleLogout = () => {
-    disconnect();
-  };
+    disconnect()
+  }
 
   const dropdownItems = [
     {
@@ -93,12 +75,12 @@ const HeaderWithTabs = () => {
       label: shortenAddress(connectedWalletAddress!) || "Wallet Address",
     },
     { value: "logout", label: "Log Out" },
-  ];
+  ]
 
   const handleTabChange = (value: string) => {
-    setActiveTab(value);
+    setActiveTab(value)
 
-  };
+  }
 
   return (
     <Tabs value={activeTab} onValueChange={handleTabChange} className="flex flex-col h-screen ">
@@ -143,7 +125,7 @@ const HeaderWithTabs = () => {
                 placeholder={shortenAddress(connectedWalletAddress!) || ""}
                 onChange={(value) => {
                   if (value === "logout") {
-                    handleLogout();
+                    handleLogout()
                   }
                 }}
                 className="rounded-xl"
@@ -173,7 +155,7 @@ const HeaderWithTabs = () => {
         </TabsContent>
       </div>
     </Tabs>
-  );
-};
+  )
+}
 
-export default HeaderWithTabs;
+export default HeaderWithTabs

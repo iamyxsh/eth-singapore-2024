@@ -3,6 +3,9 @@ pragma solidity ^0.8.13;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
+
+error UserAlreadyRegistered();
+error TokenTransferedFail();
 contract UserRegistry {
     IERC20 public stakedToken;
     address public stakingContract;
@@ -20,18 +23,24 @@ contract UserRegistry {
         return userRegistry[user];
     }
 
-    function registerUser() external {
-        require(!userRegistry[msg.sender], "User is already registered");
+    // function registerUser() external {
+    //     // require(userRegistry[msg.sender], "User is already registered");
+    //     // if(userRegistry[msg.sender]) {
+    //     //     revert UserAlreadyRegistered();
+    //     // }
 
-        uint256 amountToStake = 100 * 10**18; // Example amount to stake
-        // Perform the token transfer and handle the error accordingly
-        bool success = stakedToken.transferFrom(msg.sender, stakingContract, amountToStake);
-        require(success, "Token transfer failed");
+    //     uint256 amountToStake = 10 * 10**18; // Example amount to stake
+    //     // Perform the token transfer and handle the error accordingly
+    //     bool success = stakedToken.transferFrom(msg.sender, stakingContract, amountToStake);
+    //     // require(success, "Token transfer failed");
+    //     // if(!success){
+    //     //     revert TokenTransferedFail();
+    //     // }
 
-        // Update the user registry mapping
-        userRegistry[msg.sender] = true;
+    //     // Update the user registry mapping
+    //     userRegistry[msg.sender] = true;
 
-        // Emit event
-        emit UserRegistered(msg.sender);
-    }
+    //     // Emit event
+    //     emit UserRegistered(msg.sender);
+    // }
 }

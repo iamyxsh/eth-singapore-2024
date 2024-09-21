@@ -25,6 +25,8 @@ import {
   testDxtrUnStaked
 } from './testingScript'
 
+import { orderBookAbi } from "./abis.js"
+
 dotenv.config()
 
 async function main() {
@@ -37,19 +39,23 @@ async function main() {
 
 
   //   // Set up provider
-  //   const provider = new ethers.JsonRpcProvider(process.env.RPC_URL)
+  const provider = new ethers.WebSocketProvider(process.env.RPC_URL)
 
-  //   // ABI for the UserRegistry contract (replace with your actual ABI)
-  //   const abi = [
-  //     "event UserRegistered(address indexed user)"
-  //   ]
 
   //   // Contract address
   //   const contractAddress = process.env.CONTRACT_ADDRESS || ""
   //   console.log("🚀 ~ process.env.CONTRACT_ADDRESS:", contractAddress)
 
   //   // Create contract instance
-  //   const contract = new ethers.Contract(contractAddress, abi, provider)
+  const contract = new ethers.Contract("0xf953b3a269d80e3eb0f2947630da976b896a8c5b", orderBookAbi, provider)
+
+  contract.on("Orderbook__OrderPlaced", (...params) => {
+    console.log("params Orderbook__OrderPlaced", params)
+  })
+
+  contract.on("Orderbook__OrderMatched", (...params) => {
+    console.log("params Orderbook__OrderMatched", params)
+  })
 
   //   console.log('Starting listener.....')
 
@@ -66,7 +72,7 @@ async function main() {
   //TESTING
 
   // testCreateUser()
-  testCreateLiquidityPosition()
+  // testCreateLiquidityPosition()
   // testRemoveLiquidity()
   // testCreateOrder()
   // testMatchOrder()
