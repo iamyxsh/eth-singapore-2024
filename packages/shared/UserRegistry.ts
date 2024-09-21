@@ -3,7 +3,7 @@ import { ethers, Provider, Signer, Contract } from 'ethers'
 import abi from './abis/UserRegistryABI.json' // Ensure the ABI is saved in this path
 
 class UserRegistry {
-  private contract: Contract
+  public contract: Contract
   private provider: Provider
   private signer: Signer
 
