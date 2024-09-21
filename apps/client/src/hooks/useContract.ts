@@ -1,9 +1,8 @@
-// useContract.ts
 import { useEffect } from 'react';
 import { ethers } from 'ethers';
 import { useContractStore } from '@/stores/contract/contractStore';
 
-const useContract = (contractAddress: string, contractABI: any) => {
+const useContract = (contractKey: string, contractAddress: string, contractABI: any) => {
   const setContract = useContractStore((state) => state.setContract);
   const setProvider = useContractStore((state) => state.setProvider);
   const setSigner = useContractStore((state) => state.setSigner);
@@ -12,19 +11,18 @@ const useContract = (contractAddress: string, contractABI: any) => {
     const initProvider = async () => {
       const { ethereum } = window;
       if (ethereum) {
-        const provider = new ethers.BrowserProvider(ethereum); // Change to BrowserProvider
-        const signer = await provider.getSigner(); // Use await here
+        const provider = new ethers.BrowserProvider(ethereum);
+        const signer = await provider.getSigner();
         const contractInstance = new ethers.Contract(contractAddress, contractABI, signer);
-        const testing = await contractInstance.getAddress();
-        console.log({provider, signer, contractInstance, testing}, "Intialized...")
+        console.log({ provider, signer, contractInstance }, `Initialized ${contractKey}...`);
         setProvider(provider);
         setSigner(signer);
-        setContract(contractInstance);
+        setContract(contractKey, contractInstance); // Use contractKey to identify contract
       }
     };
 
     initProvider();
-  }, [contractAddress, contractABI, setContract, setProvider, setSigner]);
+  }, [contractKey, contractAddress, contractABI, setContract, setProvider, setSigner]);
 };
 
 export default useContract;

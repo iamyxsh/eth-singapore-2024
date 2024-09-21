@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import useWalletStore from "@/stores/walletStore";
-import { BrowserProvider, Contract, parseUnits } from "ethers";
+import { BrowserProvider, Contract, ethers, parseUnits } from "ethers";
 import CustomDropdown from "../CustomDropdown";
+import { useContractStore } from "@/stores/contract/contractStore";
 
 const DextrABI = [
   {
@@ -14,16 +15,16 @@ const DextrABI = [
 ];
 
 const TOKEN_ADDRESSES = [
-  { tokenName: "DXTR", address: "0x123", logoLink: "dxtr-logo.png" },
-  { tokenName: "WBTC", address: "0x456", logoLink: "wbtc-logo.png" },
-  { tokenName: "WETH", address: "0x789", logoLink: "weth-logo.png" },
-  { tokenName: "USDC", address: "0xabc", logoLink: "usdc-logo.png" },
+  { tokenName: "DEXTR", address: "0xcf7ed3acca5a467e9e704c703e8d87f634fb0fc9", logoLink: "dxtr-logo.png" },
+  { tokenName: "WBTC", address: "0x9fe46736679d2d9a65f0992f2272de9f3c7fa6e0", logoLink: "wbtc-logo.png" },
+  { tokenName: "WETH", address: "0xe7f1725e7734ce288f8367e1bb143e90bb3f0512", logoLink: "weth-logo.png" },
+  { tokenName: "USDC", address: "0x5fbdb2315678afecb367f032d93f642f64180aa3", logoLink: "usdc-logo.png" },
 ];
 
 const tokenOptions = [
   { label: "WBTC", value: "WBTC" },
   { label: "WETH", value: "WETH" },
-  { label: "DXTR", value: "DXTR" },
+  { label: "DEXTR", value: "DEXTR" },
   { label: "USDC", value: "USDC" },
 ];
 
@@ -39,11 +40,16 @@ const DFaucet: React.FC = () => {
   const isWalletConnected = useWalletStore((state) => state.connected);
   const [loading, setLoading] = useState(false);
   const [token, setToken] = useState<Token>("DXTR");
+  const dextrContract = useContractStore((state) => state.contracts['dextr'])
+  const usdcContract = useContractStore((state) => state.contracts['usdcContract'])
+  const wethContract = useContractStore((state) => state.contracts['wethContract'])
+  const wbtchContract = useContractStore((state) => state.contracts['wbtcContract'])
+
 
   const tokenQuantity: TokenQuantity[] = [
     { token: "DXTR", quantity: "250" },
-    { token: "WBTC", quantity: "0.01" },
-    { token: "WETH", quantity: "0.5" },
+    { token: "WBTC", quantity: "250" },
+    { token: "WETH", quantity: "250" },
     { token: "USDC", quantity: "250" },
   ];
 
@@ -91,32 +97,44 @@ const DFaucet: React.FC = () => {
       window.alert("Wallet is not connected");
       return;
     }
-
+  
     setLoading(true);
-
+  
     try {
       const provider = new BrowserProvider((window as any).ethereum);
       const signer = await provider.getSigner();
-
-      const dextrAddr = TOKEN_ADDRESSES.find(
-        (e) => e.tokenName === token
-      )?.address;
-
-      if (!dextrAddr) {
-        window.alert("Token address not found");
-        setLoading(false);
-        return;
+  
+      let contract;
+  
+      switch (token) {
+        case "DEXTR":
+          contract = dextrContract;
+          break;
+        case "USDC":
+          contract = usdcContract;
+          break;
+        case "WETH":
+          contract = wethContract;
+          break;
+        case "WBTC":
+          contract = wbtchContract;
+          break;
+        default:
+          window.alert("Invalid token selected");
+          setLoading(false);
+          return;
       }
-
-      const dextrTokenInstance = new Contract(dextrAddr, DextrABI, signer);
-
+  
       const quantity =
         tokenQuantity.find((e) => e.token === token)?.quantity || "0";
-      const value = parseUnits(quantity, 18);
-
-      const trx = await dextrTokenInstance.mint(value);
+  
+      // Call the specific contract's mint function
+      const trx = await contract!.mint(connectedWalletAddress, ethers.parseEther(quantity));
+  
+      const balanceOf = await contract!.balanceOf(connectedWalletAddress);
+      console.log({ trx, balanceOf: ethers.formatEther(balanceOf) }, "TRX");
       await trx.wait();
-
+  
       window.alert("Tokens are on their way to your Wallet");
     } catch (error) {
       console.error(error);
@@ -125,6 +143,7 @@ const DFaucet: React.FC = () => {
       setLoading(false);
     }
   };
+  
 
   return (
     <div>

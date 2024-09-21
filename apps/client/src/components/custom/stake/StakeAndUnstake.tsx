@@ -3,6 +3,9 @@ import { create } from "zustand";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
+import { useContractStore } from "@/stores/contract/contractStore";
+import { ethers } from "ethers";
+import { stakeDextrContractAddress } from "@/constants/contractAddresses";
 
 interface StakingStore {
   stakedBalance: number;
@@ -19,6 +22,7 @@ const useStakingStore = create<StakingStore>((set) => ({
 }));
 
 function StakeAndUnstake() {
+  const [isLoading, setIsLoading] = useState<boolean>(false)
   const [activeTab, setActiveTab] = useState("stake");
   const {
     stakedBalance,
@@ -27,15 +31,41 @@ function StakeAndUnstake() {
     unstakedBalance,
   } = useStakingStore();
   const [sliderValue, setSliderValue] = useState(0);
+  const stakeDextrContract = useContractStore((state) => state.contracts['stakeDextrContract'])
+  const dextrContract = useContractStore((state) => state.contracts['dextr'])
 
-  const handleStake = () => {
-    const amountToStake = sliderValue;
-    setStakedBalance(stakedBalance + amountToStake);
+
+  const handleStake = async () => {
+    try {
+      setIsLoading(true)
+      const approveTrx = await dextrContract!.approve(stakeDextrContractAddress, ethers.parseEther(sliderValue.toString()));
+      await approveTrx.wait();
+      console.log(approveTrx)
+      const trx = await stakeDextrContract!.stake(ethers.parseEther(sliderValue.toString()));
+      await trx.wait();
+      setStakedBalance(stakedBalance + sliderValue);
+      setIsLoading(false)
+      window.alert("Successfully staked!");
+    } catch (error) {
+      console.error(error);
+      setIsLoading(false)
+      window.alert("Failed to stake tokens.");
+    }
   };
 
-  const handleUnstake = () => {
-    const amountToUnstake = sliderValue;
-    setUnstakedBalance(unstakedBalance + amountToUnstake);
+  const handleUnstake = async () => {
+    try {
+      setIsLoading(true)
+      const trx = await stakeDextrContract!.unstake(ethers.parseEther(sliderValue.toString()));
+      await trx.wait();
+      setUnstakedBalance(unstakedBalance + sliderValue);
+      window.alert("Successfully unstaked!");
+      setIsLoading(false)
+    } catch (error) {
+      console.error(error);
+      setIsLoading(false)
+      window.alert("Failed to unstake tokens.");
+    }
   };
 
   return (
@@ -92,7 +122,7 @@ function StakeAndUnstake() {
           <TabsContent value="stake">
             <div className="w-full flex mb-4">
               <Button onClick={handleStake} className="w-full">
-                Stake
+                {`${isLoading ? 'Staking...': 'Stake'}`}
               </Button>
             </div>
           </TabsContent>
@@ -103,7 +133,7 @@ function StakeAndUnstake() {
                 onClick={handleUnstake}
                 className="w-full bg-red-500 hover:bg-red-700 text-white"
               >
-                Unstake
+                {`${isLoading ? 'Unstaking...': 'Unstake'}`}
               </Button>
             </div>
           </TabsContent>
