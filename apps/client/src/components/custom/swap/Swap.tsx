@@ -43,7 +43,7 @@ const SwapComponent: React.FC = () => {
 
   return (
     <div className="w-full flex justify-center">
-      <div className="flex flex-col items-center w-full justify-center bg-background shadow-xl border border-gray-700 text-white p-6 rounded-lg">
+      <div className="flex flex-col items-center w-full justify-center bg-background shadow-xl border border-gray-700 text-white p-6 rounded-lg ">
         
         {/* Tabs for Market and Limit */}
         <Tabs defaultValue="Market" className="w-full">
@@ -61,6 +61,14 @@ const SwapComponent: React.FC = () => {
               onClick={()=>setActiveTab("Limit")}
             >
               Limit
+            </TabsTrigger>
+            <TabsTrigger
+              value="OCO"
+              className="w-1/2 px-4 rounded-md font-bold data-[state=active]:bg-primary data-[state=active]:text-white data-[state=inactive]:bg-gray-800 data-[state=inactive]:text-gray-400"
+              onClick={()=>setActiveTab("OCO")}
+              disabled
+            >
+              OCO
             </TabsTrigger>
           </TabsList>
 
@@ -145,10 +153,13 @@ const SwapComponent: React.FC = () => {
               </div>
             </div>
           </TabsContent>
+          <TabsContent value="OCO">
+                  coming soon...
+          </TabsContent>
         </Tabs>
 
         {/* Swap Arrow */}
-        <div className="mb-4">
+        <div className={`mb-4 ${activeTab === 'OCO' ? 'hidden' : 'block'}`}>
           <button
             className="swap-icon rounded-full bg-gray-800 p-2 focus:outline-none"
             aria-label="Swap"
@@ -171,7 +182,7 @@ const SwapComponent: React.FC = () => {
         </div>
 
         {/* Buy Section */}
-        <div className="w-full mb-4">
+        <div className={`w-full mb-4 ${activeTab === 'OCO' ? 'hidden' : 'block'}`}>
           <div className="flex justify-between items-center">
             <p>Buy</p>
           </div>
@@ -200,7 +211,7 @@ const SwapComponent: React.FC = () => {
         </div>
 
         {/* Place Order Button */}
-        <button className="w-full bg-primary text-white py-3 rounded-lg mt-4">
+        <button className={`w-full bg-primary text-white py-3 rounded-lg mt-4 ${activeTab === 'OCO' ? 'hidden' : 'block'}`}>
           {activeTab === "Market" ? "Place Market Order" : "Place Limit Order"}
         </button>
       </div>
