@@ -7,10 +7,10 @@ const onboard = Onboard({
   wallets: [injected],
   chains: [
     {
-      id: '0x13882', 
-      token: 'Polygon Amoy',
-      label: 'Amoy Testnet',
-      rpcUrl: 'https://rpc-amoy.polygon.technology'  
+      id: '0x7A69', 
+      token: 'DEXTR',
+      label: 'DEXTR Testnet',
+      rpcUrl: 'https://cee2-223-255-254-102.ngrok-free.app'  
     }
   ]
 });

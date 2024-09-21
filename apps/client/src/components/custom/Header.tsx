@@ -34,7 +34,7 @@ const HeaderWithTabs = () => {
 
       setWallet(address, chainId);
 
-      await onboard.setChain({ chainId: "0x13882" });
+      await onboard.setChain({ chainId: "0x7A69" });
     } else {
       console.log("No wallet connected");
     }
