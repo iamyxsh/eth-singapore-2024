@@ -5,7 +5,7 @@ import { useContractStore } from "@/stores/contract/contractStore"
 import { BrowserProvider, ethers } from "ethers"
 import useWalletStore from "@/stores/walletStore"
 import { orderContractAddress, userRegistryContractAddress, wethContractAddress } from "@/constants/contractAddresses"
-
+import toast from 'react-hot-toast';
 const SwapComponent: React.FC = () => {
   const {
     sellAmount,
@@ -59,7 +59,7 @@ const SwapComponent: React.FC = () => {
         contract = wbtchContract
         break
       default:
-        window.alert("Invalid token selected")
+        toast.error("Invalid token selected")
         return
     }
 
@@ -84,7 +84,7 @@ const SwapComponent: React.FC = () => {
         contract = wbtchContract
         break
       default:
-        window.alert("Invalid token selected")
+        toast.error("Invalid token selected")
         return
     }
 
@@ -140,11 +140,11 @@ const SwapComponent: React.FC = () => {
           amount
         )
         await tx.wait()
-        window.alert("Order submitted successfully")
+        toast.success("Order submitted successfully")
       } catch (error) {
         console.error("Error placing market order:", error)
         // Handle error (e.g., show an error notification)
-        window.alert("Order submission failed")
+        toast("Order submission failed")
       }
     }
   }

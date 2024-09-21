@@ -12,10 +12,14 @@ import Header from "./components/custom/Header";
 // import Stake from "./pages/Stake";
 // import AddLiquidity from "./components/custom/liquidity/AddLiquidity";
 // import Trade from "./pages/Trade"; // Assuming you have a Trade component
+import { Toaster } from 'react-hot-toast';
 
 const App = () => {
   return (
+    <>
     <Header />
+    <Toaster />
+    </>
     // <Router>
     //   <Header />
     //   <Routes>
