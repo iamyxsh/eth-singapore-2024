@@ -43,7 +43,6 @@ contract OrderbookTest is Test {
         );
 
         assertEq(inToken.balanceOf(address(lpManager)), 0.1 ether);
-
         assertEq(orderbook.getOrderById(1).orderId, 1);
         assertEq(orderbook.getOrderById(1).amountIn, 1 ether);
         assertEq(orderbook.getOrderById(1).inToken, address(inToken));
