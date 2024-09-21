@@ -14,7 +14,6 @@ const useContract = (contractKey: string, contractAddress: string, contractABI: 
         const provider = new ethers.BrowserProvider(ethereum);
         const signer = await provider.getSigner();
         const contractInstance = new ethers.Contract(contractAddress, contractABI, signer);
-        console.log({ provider, signer, contractInstance }, `Initialized ${contractKey}...`);
         setProvider(provider);
         setSigner(signer);
         setContract(contractKey, contractInstance); // Use contractKey to identify contract
