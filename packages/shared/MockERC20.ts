@@ -13,7 +13,7 @@ class MockERC20 {
     return allowance.toNumber()
   }
 
-  async approve(spender: string, value: number): Promise<boolean> {
+  async approve(spender: string, value: any): Promise<boolean> {
     const tx = await this.contract.approve(spender, value)
     await tx.wait()
     return tx.wait().status === 1 // true if the transaction was successful
