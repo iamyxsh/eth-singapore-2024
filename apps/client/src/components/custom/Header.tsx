@@ -13,7 +13,7 @@ import UserRegistryABI from '../../../.././../packages/shared/abis//UserRegistry
 import DextrAbi from '../../../.././../packages/shared/abis/MockERC20ABI.json'
 import AddLiquidityAbi from "../../../.././../packages/shared/abis/LiquidityManagerABI.json"
 import OrderbookABI from "../../../.././../packages/shared/abis/OrderbookABI.json"
-import OracleContractABI from "../../../.././../packages/shared/abis/OrderbookABI.json"
+import OracleContractABI from "../../../.././../packages/shared/abis/MockOracleClient.json"
 import stakeAbi from "../../../.././../packages/shared/abis/StakeABI.json"
 import { useContractStore } from "@/stores/contract/contractStore"
 import { ethers } from "ethers"
