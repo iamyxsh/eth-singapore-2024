@@ -1,15 +1,16 @@
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useContractStore } from "@/stores/contract/contractStore";
-import { useEffect, useState } from "react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { useContractStore } from "@/stores/contract/contractStore"
+import { ethers } from "ethers"
+import { useEffect, useState } from "react"
 
 const AllPairs = () => {
-  
+
   const usdPriceData = [
     { pair: "WBTC/USD", price: "$30,000" },
     { pair: "WETH/USD", price: "$2,000" },
     { pair: "DXTR/USD", price: "$0.50" },
     { pair: "USDC/USD", price: "$2.50" },
-  ];
+  ]
 
   const relativePriceData = [
     { pair: "WBTC/WETH", price: "15" },
@@ -20,10 +21,10 @@ const AllPairs = () => {
     { pair: "WETH/USDC", price: "60,000" },
     { pair: "DEXTR/USDC", price: "4,000" },
 
-  ];
-  
-  const oracleContract = useContractStore((state) => state.contracts['oracleContract']);
-  const [usdPrices, setUsdPrices] = useState<{ pair: string; price: string }[]>([]);
+  ]
+
+  const oracleContract = useContractStore((state) => state.contracts['oracleContract'])
+  const [usdPrices, setUsdPrices] = useState<{ pair: string; price: string }[]>([])
 
 
 
@@ -32,22 +33,29 @@ const AllPairs = () => {
     "WETH/USD": 19,
     "DXTR/USD": 197,
     "USDC/USD": 89,
-  };
+  }
 
   const fetchPairPrices = async () => {
     const pricePromises = Object.entries(pairIndexes).map(async ([pair, index]) => {
-      const amount = await oracleContract!.getPairPrice(index);
-      return { pair, price: `$${amount.toString()}` }; // Adjust formatting as needed
-    });
+      let [amount] = await oracleContract!.getPrice(index)
+      if (index === 197) {
+        amount = ethers.formatEther(amount)
+      } else if (index === 89) {
+        amount = ethers.formatUnits(amount, 8)
+      } else {
+        amount = ethers.formatUnits(amount, 8)
+      }
+      return { pair, price: `$${(amount).toString()}` } // Adjust formatting as needed
+    })
 
-    const prices = await Promise.all(pricePromises);
-    setUsdPrices(prices);
-  };
+    const prices = await Promise.all(pricePromises)
+    setUsdPrices(prices)
+  }
   useEffect(() => {
     if (oracleContract) {
-      fetchPairPrices();
+      fetchPairPrices()
     }
-  }, [oracleContract]);
+  }, [oracleContract])
 
   return (
     <div className="shadow-lg border border-gray-700 px-2 rounded-xl  h-full">
@@ -103,7 +111,7 @@ const AllPairs = () => {
         </TabsContent>
       </Tabs>
     </div>
-  );
-};
+  )
+}
 
-export default AllPairs;
+export default AllPairs

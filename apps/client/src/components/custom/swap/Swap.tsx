@@ -7,6 +7,8 @@ import useWalletStore from "@/stores/walletStore"
 import { orderContractAddress, userRegistryContractAddress, wethContractAddress } from "@/constants/contractAddresses"
 import toast from 'react-hot-toast';
 const SwapComponent: React.FC = () => {
+  const oracleContract = useContractStore((state) => state.contracts['oracleContract'])
+
   const {
     sellAmount,
     sellCurrency,
@@ -15,6 +17,8 @@ const SwapComponent: React.FC = () => {
     buyAmount,
     buyCurrency,
     buyBalance,
+    setBuyAmount,
+    setBuyPrice,
     buyPrice,
     percentageChange,
     setSellAmount,
@@ -42,8 +46,21 @@ const SwapComponent: React.FC = () => {
     (state) => state.contracts["wbtcContract"]
   )
 
+  useEffect(() => {
+    const getPrice = async () => {
+      const [usdc] = await oracleContract!.getPrice(89)
+      const [eth] = await oracleContract!.getPrice(19)
 
-  const fetchTokenAddress = (token:string) =>{
+      console.log("usdc", eth)
+      setSellPrice(parseInt(usdc.toString()))
+      setBuyPrice(parseInt(eth.toString()))
+    }
+
+    getPrice()
+  }, [oracleContract])
+
+
+  const fetchTokenAddress = (token: string) => {
     let contract
     switch (token) {
       case "DEXTR":
@@ -63,7 +80,7 @@ const SwapComponent: React.FC = () => {
         return
     }
 
-    return contract?.getAddress();
+    return contract?.getAddress()
 
   }
 
@@ -120,10 +137,10 @@ const SwapComponent: React.FC = () => {
     if (orderbookContract) {
       try {
         const inTokenAddress = await fetchTokenAddress(sellCurrency) // replace with actual token address
-        const outTokenAddress =await fetchTokenAddress(buyCurrency) // replace with actual token address
-        const amount = ethers.parseEther(buyAmount.toString());
+        const outTokenAddress = await fetchTokenAddress(buyCurrency) // replace with actual token address
+        const amount = ethers.parseEther(buyAmount.toString())
 
-        console.log({inTokenAddress, outTokenAddress, amount}, "EEEEEEEE")
+        console.log({ inTokenAddress, outTokenAddress, amount }, "EEEEEEEE")
 
         // console.log({ inTokenAddress, outTokenAddress });
         console.log("balance of", await dextrContract!.balanceOf(await signer?.getAddress()))
@@ -136,7 +153,7 @@ const SwapComponent: React.FC = () => {
 
         const tx = await orderbookContract.placeMarketOrder(
           outTokenAddress,
-          inTokenAddress ,
+          inTokenAddress,
           amount
         )
         await tx.wait()
@@ -170,6 +187,13 @@ const SwapComponent: React.FC = () => {
       updateBuyBalance()
     }
   }, [buyCurrency, connectedWalletAddress])
+
+
+  useEffect(() => {
+    if (!sellAmount) return
+    const amount = (sellAmount * (sellPrice / 1e10)) / (buyPrice / 1e10)
+    setBuyAmount(parseFloat(amount.toFixed(2)))
+  }, [sellAmount])
 
   return (
     <div className="w-full flex justify-center">
@@ -232,7 +256,7 @@ const SwapComponent: React.FC = () => {
 
               <div className="flex justify-between mt-2 text-gray-400 text-sm">
                 <p>Balance: {sellBalance}</p>
-                <p className="text-sm">${sellPrice}</p>
+                <p className="text-sm">${ethers.formatUnits(sellPrice, 8)}</p>
               </div>
             </div>
           </TabsContent>
@@ -333,7 +357,7 @@ const SwapComponent: React.FC = () => {
 
           <div className="flex justify-between mt-2 text-gray-400 text-sm">
             <p>Balance: {buyBalance < 0.001 ? "<0.001" : buyBalance}</p>
-            <p className="text-sm">${buyPrice}</p>
+            <p className="text-sm">${ethers.formatUnits(buyPrice, 8)}</p>
           </div>
           <div className="text-green-500 text-sm">({percentageChange}%)</div>
         </div>

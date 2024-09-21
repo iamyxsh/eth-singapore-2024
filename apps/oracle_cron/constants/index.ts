@@ -6,15 +6,20 @@ export { abi as MockOracleABI } from './MockOracle.json'
 
 export { abi as OracleProofABI } from './OracleProof.json'
 
-export const CHAIN_ID = '80084'
-export const ADMIN_PRIVATE_KEY = process.env.ADMIN_PRIVATE_KEY || ''
-export const MOCK_ORACLE_ADDRESS = '0x0813277452AABAdB1523d747B5d8c3e6a824E3f7'
+export const CHAIN_ID = '31337'
+export const ADMIN_PRIVATE_KEY =
+  process.env.ADMIN_PRIVATE_KEY ||
+  '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80'
+export const MOCK_ORACLE_ADDRESS = '0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9'
 export const CHAIN_INFO = {
   '80002': {
     rpcUrl: 'https://rpc-amoy.polygon.technology',
   },
   '80084': {
     rpcUrl: 'https://bartio.rpc.berachain.com/',
+  },
+  '31337': {
+    rpcUrl: 'http://127.0.0.1:8545',
   },
 }
 
