@@ -12,12 +12,11 @@ import {
 // Define the interface for each order item
 interface OrderMatched {
   orderId: string;
-  trader: string;
   tokenIn: string;
   tokenOut: string;
   tokenInAmount: number;
   tokenOutAmount: number;
-  feeEarned: number;
+  status: string;
 }
 
 interface RecentOrdersMatchedProps {
@@ -47,9 +46,6 @@ const RecentOrdersMatched: React.FC<RecentOrdersMatchedProps> = ({
               Order ID
             </TableHead>
             <TableHead className="bg-gray-800 text-gray-300 py-2 ">
-              Trader
-            </TableHead>
-            <TableHead className="bg-gray-800 text-gray-300 py-2 ">
               Token In
             </TableHead>
             <TableHead className="bg-gray-800 text-gray-300 py-2">
@@ -62,7 +58,7 @@ const RecentOrdersMatched: React.FC<RecentOrdersMatchedProps> = ({
               Token Out Amount
             </TableHead>
             <TableHead className="bg-gray-800 text-gray-300 py-2 ">
-              Fee Earned
+              Status
             </TableHead>
           </TableRow>
         </TableHeader>
@@ -74,9 +70,6 @@ const RecentOrdersMatched: React.FC<RecentOrdersMatchedProps> = ({
             >
               <TableCell className="border-b border-gray-600">
                 {order.orderId}
-              </TableCell>
-              <TableCell className="border-b border-gray-600">
-                {order.trader}
               </TableCell>
               <TableCell className="border-b border-gray-600">
                 {order.tokenIn}
@@ -91,7 +84,17 @@ const RecentOrdersMatched: React.FC<RecentOrdersMatchedProps> = ({
                 {order.tokenOutAmount}
               </TableCell>
               <TableCell className="border-b border-gray-600">
-                {order.feeEarned}
+                <span
+                  className={`${
+                    order.status === "completed"
+                      ? "text-green-500"
+                      : order.status === "in progress"
+                      ? "text-yellow-500"
+                      : "text-red-500"
+                  }`}
+                >
+                  {order.status}
+                </span>
               </TableCell>
             </TableRow>
           ))}

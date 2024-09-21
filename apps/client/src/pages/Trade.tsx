@@ -8,12 +8,11 @@ import Swap from "@/components/custom/swap/Swap";
 const dummyOrders = [
   {
     orderId: "1",
-    trader: "TraderA",
     tokenIn: "ETH",
     tokenOut: "USDT",
     tokenInAmount: 1.2,
     tokenOutAmount: 2400,
-    feeEarned: 12,
+    status: 'pending',
   },
   {
     orderId: "2",
@@ -22,7 +21,7 @@ const dummyOrders = [
     tokenOut: "ETH",
     tokenInAmount: 0.5,
     tokenOutAmount: 7.5,
-    feeEarned: 0.1,
+    status: 'in progress',
   },
   {
     orderId: "3",
@@ -31,7 +30,7 @@ const dummyOrders = [
     tokenOut: "BTC",
     tokenInAmount: 10,
     tokenOutAmount: 0.025,
-    feeEarned: 0.0025,
+    status: 'completed',
   },
 ];
 
@@ -54,12 +53,11 @@ const Trade = () => {
     const timeoutId = setTimeout(() => {
       const newOrder = {
         orderId: "4",
-        trader: "TraderD",
         tokenIn: "ADA",
         tokenOut: "SOL",
         tokenInAmount: 1000,
         tokenOutAmount: 150,
-        feeEarned: 5,
+        status: 'completed',
       };
       addNewOrder(newOrder);
     }, 5000);
