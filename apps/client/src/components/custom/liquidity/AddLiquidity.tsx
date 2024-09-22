@@ -16,7 +16,9 @@ import { useContractStore } from "@/stores/contract/contractStore"
 import useWalletStore from "@/stores/walletStore"
 import { ethers } from "ethers"
 import liqManagerABI from '../../../../../../packages/shared/abis/LiquidityManagerABI.json'
-import { usdcContractAddress } from "@/constants/contractAddresses"
+import { addLiquidityAbiContractAddress, usdcContractAddress } from "@/constants/contractAddresses"
+import toast from 'react-hot-toast'
+
 
 interface AddLiquidityProps {
   isOpen: boolean
@@ -24,6 +26,12 @@ interface AddLiquidityProps {
 }
 
 const AddLiquidity: React.FC<AddLiquidityProps> = ({ isOpen, onClose }) => {
+  const addLiquidityContract = useContractStore((state) => state.contracts['addLiquidityContract'])
+  const primaryTokenContract = useContractStore(
+    (state) => state.contracts["usdcContract"]
+  )
+
+
   const {
     depositToken,
     depositAmount,
@@ -31,12 +39,10 @@ const AddLiquidity: React.FC<AddLiquidityProps> = ({ isOpen, onClose }) => {
     updateDepositToken,
     updateDepositAmount,
     updateCurrentPrice,
+
   } = useLiquidityStore()
   const { connected } = useWalletStore()
 
-  const addLiquidityContract = useContractStore(
-    (state) => state.contracts["addLiquidityContract"]
-  )
 
   const [selectedSecondaryTokens, setSelectedSecondaryTokens] = useState<
     Token[]
@@ -175,45 +181,51 @@ const AddLiquidity: React.FC<AddLiquidityProps> = ({ isOpen, onClose }) => {
   const { signer } = useContractStore()
 
   const handleAddLiquidity = async () => {
-    console.log({ addLiquidityContract, connected })
-    if (!addLiquidityContract || !connected) return
+    try {
+      if (!addLiquidityContract || !connected) return
 
-    const primaryTokenAddress = usdcContractAddress
-    const minPrice = primaryMinPrice
-    const maxPrice = primaryMaxPrice
-    const amount = depositAmount
+      const primaryTokenAddress = usdcContractAddress
+      const minPrice = primaryMinPrice || 0
+      const maxPrice = primaryMaxPrice || 0
+      const amount = depositAmount
 
-    const tradingTokens = selectedSecondaryTokens.map((token) => token.address)
-    const tradingMinTokens = selectedSecondaryTokens.map(
-      (token) => token.minPrice!
-    )
-    const tradingMaxTokens = selectedSecondaryTokens.map(
-      (token) => token.maxPrice!
-    )
+      const tradingTokens = selectedSecondaryTokens.map((token) => token.address)
+      const tradingMinTokens = selectedSecondaryTokens.map(
+        (token) => token.minPrice!
+      )
+      const tradingMaxTokens = selectedSecondaryTokens.map(
+        (token) => token.maxPrice!
+      )
 
-    // Log the parameters before calling the contract
-    console.log(
-      "Preparing to call createLiquidityPosition with the following parameters:",
-      {
-        primaryTokenAddress,
-        minPrice,
-        maxPrice,
-        amount,
-        tradingTokens,
-        tradingMinTokens,
-        tradingMaxTokens,
-      }
-    )
+      // Log the parameters before calling the contract
+      console.log(
+        "Preparing to call createLiquidityPosition with the following parameters:",
+        {
+          primaryTokenAddress,
+          minPrice,
+          maxPrice,
+          amount,
+          tradingTokens,
+          tradingMinTokens,
+          tradingMaxTokens,
+        }
+      )
 
+      await primaryTokenContract!.approve(
+        addLiquidityAbiContractAddress,
+        ethers.parseEther(depositAmount.toString() + "")
+      )
+      const tx = await addLiquidityContract.createLiquidityPosition(primaryTokenAddress, ethers.parseEther(minPrice.toString()), ethers.parseEther(maxPrice.toString()), ethers.parseEther(amount.toString()), tradingTokens, tradingMinTokens, tradingMaxTokens)
+      await tx.wait()
+      toast.success("Liquidity added successfully")
+      console.log({ tx }, "tx after submission")
 
-    // Instead of calling the contract, just log a message
-    console.log(
-      "Transaction would be sent now, but it's currently disabled for testing."
-    )
-    const contract = new ethers.Contract("0xc6e7df5e7b4f2a278906862b61205850344d4e7d", liqManagerABI, signer)
-    console.log("kuch naaam", primaryTokenAddress, 0.99, 1.01, amount, tradingTokens, tradingMinTokens, tradingMaxTokens)
-    const tx = await contract.createLiquidityPosition(primaryTokenAddress, minPrice, maxPrice, amount, tradingTokens, tradingMinTokens, tradingMaxTokens)
-    await tx.wait()
+    } catch (error) {
+      toast.error("error while adding liquidity")
+    }
+    finally {
+      onClose()
+    }
   }
 
 

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react"
 import {
   Table,
   TableBody,
@@ -7,54 +7,59 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import { useTransactionStore } from "@/stores/transactionStore";
+} from "@/components/ui/table"
+import { useTransactionStore } from "@/stores/transactionStore"
 
 // Define the interface for each order item
 interface OrderMatched {
-  orderId: string;
-  tokenIn: string;
-  tokenOut: string;
-  tokenInAmount: number;
-  tokenOutAmount: number;
-  status: string;
+  orderId: string
+  tokenIn: string
+  tokenOut: string
+  tokenInAmount: number
+  tokenOutAmount: number
+  status: string
 }
 
 const RecentOrdersMatched: React.FC = () => {
-  const [displayedOrders, setDisplayedOrders] = useState<OrderMatched[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [previousOrdersLength, setPreviousOrdersLength] = useState(0);
-  const { orders } = useTransactionStore.getState();
+  const [displayedOrders, setDisplayedOrders] = useState<OrderMatched[]>([])
+  const [loading, setLoading] = useState(false)
+  const [previousOrdersLength, setPreviousOrdersLength] = useState(0)
+  const { orders } = useTransactionStore()
+
+
+  useEffect(() => {
+    console.log({ orders })
+  }, [orders])
 
   useEffect(() => {
     if (orders.length > previousOrdersLength) {
-      setLoading(true); // Show loader
+      setLoading(true) // Show loader
       const newOrders = orders.slice(previousOrdersLength).map((order) => {
         // Convert the incoming order data to match OrderMatched type
         const tokenInAmount = typeof order.tokenInAmount === "string"
           ? parseFloat(order.tokenInAmount)
-          : order.tokenInAmount;
+          : order.tokenInAmount
 
         const tokenOutAmount = typeof order.tokenOutAmount === "string"
           ? parseFloat(order.tokenOutAmount)
-          : order.tokenOutAmount;
+          : order.tokenOutAmount
 
         // Ensure that the order matches OrderMatched interface
         return {
           ...order,
           tokenInAmount,
           tokenOutAmount,
-        } as OrderMatched;
-      });
+        } as OrderMatched
+      })
 
       // After 5 seconds, display the new orders and hide loader
       setTimeout(() => {
         setDisplayedOrders((prevOrders) => [
           ...prevOrders,
           ...newOrders,
-        ]);
-        setLoading(false); // Hide loader
-        setPreviousOrdersLength(orders.length); // Update previous length
+        ])
+        setLoading(false) // Hide loader
+        setPreviousOrdersLength(orders.length) // Update previous length
 
         // Change status of new orders to 'completed' after 8 seconds
         newOrders.forEach((order) => {
@@ -65,12 +70,12 @@ const RecentOrdersMatched: React.FC = () => {
                   ? { ...o, status: "completed" }
                   : o
               )
-            );
-          }, 8000); // 8 seconds delay to change status
-        });
-      }, 5000); // 5 seconds delay before showing the new orders
+            )
+          }, 3000) // 8 seconds delay to change status
+        })
+      }, 0) // 5 seconds delay before showing the new orders
     }
-  }, [orders, previousOrdersLength]);
+  }, [orders.length, previousOrdersLength])
 
   return (
     <div className="w-full border border-gray-700 rounded-xl">
@@ -128,13 +133,12 @@ const RecentOrdersMatched: React.FC = () => {
               </TableCell>
               <TableCell className="border-b border-gray-600">
                 <span
-                  className={`${
-                    order.status === "completed"
-                      ? "text-green-500"
-                      : order.status === "in progress"
+                  className={`${order.status === "completed"
+                    ? "text-green-500"
+                    : order.status === "in progress"
                       ? "text-yellow-500"
                       : "text-red-500"
-                  }`}
+                    }`}
                 >
                   {order.status}
                 </span>
@@ -144,7 +148,7 @@ const RecentOrdersMatched: React.FC = () => {
         </TableBody>
       </Table>
     </div>
-  );
-};
+  )
+}
 
-export default RecentOrdersMatched;
+export default RecentOrdersMatched
