@@ -145,15 +145,14 @@ const SwapComponent: React.FC = () => {
         // console.log({ inTokenAddress, outTokenAddress });
         console.log("balance of", await dextrContract!.balanceOf(await signer?.getAddress()))
         console.log("allowance", await dextrContract!.allowance(await signer?.getAddress(), orderContractAddress))
-        await dextrContract!.approve(
+        await usdcContract!.approve(
           orderContractAddress,
-          ethers.parseEther("100")
+          ethers.parseEther(sellAmount + "")
         )
 
-
         const tx = await orderbookContract.placeMarketOrder(
-          outTokenAddress,
           inTokenAddress,
+          outTokenAddress,
           amount
         )
         await tx.wait()
