@@ -5,6 +5,8 @@ import { useContractStore } from "@/stores/contract/contractStore"
 import { BrowserProvider, ethers } from "ethers"
 import useWalletStore from "@/stores/walletStore"
 import { orderContractAddress, userRegistryContractAddress, wethContractAddress } from "@/constants/contractAddresses"
+import { useTransactionStore } from "@/stores/transactionStore"
+
 import toast from 'react-hot-toast';
 const SwapComponent: React.FC = () => {
   const oracleContract = useContractStore((state) => state.contracts['oracleContract'])
@@ -29,7 +31,8 @@ const SwapComponent: React.FC = () => {
     setBuyBalance,
   } = useStore()
   const [activeTab, setActiveTab] = useState("Market")
-  const { signer } = useContractStore()
+  const { signer } = useContractStore();
+  const { addOrder } = useTransactionStore.getState();
   const connectedWalletAddress = useWalletStore((state) => state.address)
 
   const orderbookContract = useContractStore(
@@ -58,6 +61,7 @@ const SwapComponent: React.FC = () => {
 
     getPrice()
   }, [oracleContract])
+
 
 
   const fetchTokenAddress = (token: string) => {
@@ -133,7 +137,6 @@ const SwapComponent: React.FC = () => {
   const tokenOptions: Token[] = ["WBTC", "WETH", "DEXTR", "USDC"]
 
   const placeMarketOrder = async () => {
-    console.log("orderbook", orderbookContract)
     if (orderbookContract) {
       try {
         const inTokenAddress = await fetchTokenAddress(sellCurrency) // replace with actual token address
@@ -156,7 +159,16 @@ const SwapComponent: React.FC = () => {
           inTokenAddress,
           amount
         )
-        await tx.wait()
+        await tx.wait();
+        const orderId = tx.hash;
+        addOrder({
+          orderId: orderId,               
+          tokenIn: sellCurrency,       
+          tokenOut: buyCurrency,           
+          tokenInAmount: sellAmount.toString(),  
+          tokenOutAmount: buyAmount.toString(),   
+          status: "Pending",              
+        })
         toast.success("Order submitted successfully")
       } catch (error) {
         console.error("Error placing market order:", error)
