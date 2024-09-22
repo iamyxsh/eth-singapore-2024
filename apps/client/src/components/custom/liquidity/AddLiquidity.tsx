@@ -1,27 +1,37 @@
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/button"
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
-import { useEffect, useState } from "react";
-import { Token, useLiquidityStore } from "./state/state";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Slider } from "@/components/ui/slider";
-import CustomDropdown from "../CustomDropdown";
-import { useContractStore } from "@/stores/contract/contractStore";
-import useWalletStore from "@/stores/walletStore";
-import { ethers } from "ethers";
+} from "@/components/ui/dialog"
+import { useEffect, useState } from "react"
+import { Token, useLiquidityStore } from "./state/state"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Slider } from "@/components/ui/slider"
+import CustomDropdown from "../CustomDropdown"
+import { useContractStore } from "@/stores/contract/contractStore"
+import useWalletStore from "@/stores/walletStore"
+import { ethers } from "ethers"
+import liqManagerABI from '../../../../../../packages/shared/abis/LiquidityManagerABI.json'
+import { addLiquidityAbiContractAddress, usdcContractAddress } from "@/constants/contractAddresses"
+import toast from 'react-hot-toast'
+
 
 interface AddLiquidityProps {
-  isOpen: boolean;
-  onClose: () => void;
+  isOpen: boolean
+  onClose: () => void
 }
 
 const AddLiquidity: React.FC<AddLiquidityProps> = ({ isOpen, onClose }) => {
+  const addLiquidityContract = useContractStore((state) => state.contracts['addLiquidityContract'])
+  const primaryTokenContract = useContractStore(
+    (state) => state.contracts["usdcContract"]
+  )
+
+
   const {
     depositToken,
     depositAmount,
@@ -29,78 +39,76 @@ const AddLiquidity: React.FC<AddLiquidityProps> = ({ isOpen, onClose }) => {
     updateDepositToken,
     updateDepositAmount,
     updateCurrentPrice,
-  } = useLiquidityStore();
-  const { connected } = useWalletStore();
 
-  const addLiquidityContract = useContractStore(
-    (state) => state.contracts["addLiquidityContract"]
-  );
+  } = useLiquidityStore()
+  const { connected } = useWalletStore()
+
 
   const [selectedSecondaryTokens, setSelectedSecondaryTokens] = useState<
     Token[]
-  >([]);
-  const [selectedToken, setSelectedToken] = useState<Token | null>(null);
-  const [primaryMinPrice, setPrimaryMinPrice] = useState<number | null>(null);
-  const [primaryMaxPrice, setPrimaryMaxPrice] = useState<number | null>(null);
+  >([])
+  const [selectedToken, setSelectedToken] = useState<Token | null>(null)
+  const [primaryMinPrice, setPrimaryMinPrice] = useState<number | null>(null)
+  const [primaryMaxPrice, setPrimaryMaxPrice] = useState<number | null>(null)
   const [secondaryMinPrice, setSecondaryMinPrice] = useState<number | null>(
     null
-  );
+  )
   const [secondaryMaxPrice, setSecondaryMaxPrice] = useState<number | null>(
     null
-  );
+  )
 
   useEffect(() => {
     if (!isOpen) {
-      onClose();
+      onClose()
     }
-  }, [isOpen, onClose]);
+  }, [isOpen, onClose])
 
   useEffect(() => {
     if (selectedToken) {
       const { minPrice: tokenMinPrice, maxPrice: tokenMaxPrice } =
-        selectedToken;
-      setSecondaryMinPrice(tokenMinPrice!);
-      setSecondaryMaxPrice(tokenMaxPrice!);
+        selectedToken
+      setSecondaryMinPrice(tokenMinPrice!)
+      setSecondaryMaxPrice(tokenMaxPrice!)
     }
-  }, [selectedToken]);
+  }, [selectedToken])
 
   const handlePrimaryPriceRangeChange = (value: number) => {
-    const pricePercentage = (value / 100).toFixed(2);
-    const newMinPrice = Math.max(0, parseFloat(pricePercentage) - 0.25);
-    const newMaxPrice = parseFloat(pricePercentage);
-    setPrimaryMinPrice(newMinPrice);
-    setPrimaryMaxPrice(newMaxPrice);
+    const pricePercentage = (value / 100).toFixed(2)
+    const newMinPrice = Math.max(0, parseFloat(pricePercentage) - 0.25)
+    const newMaxPrice = parseFloat(pricePercentage)
+    setPrimaryMinPrice(newMinPrice)
+    setPrimaryMaxPrice(newMaxPrice)
     updateDepositToken({
       ...depositToken,
       minPrice: newMinPrice,
       maxPrice: newMaxPrice,
-    });
-  };
+    })
+  }
 
   const handleSecondaryPriceRangeChange = (value: number) => {
     if (selectedToken) {
-      const pricePercentage = (value / 100).toFixed(2);
-      const newMinPrice = Math.max(0, parseFloat(pricePercentage) - 0.25);
-      const newMaxPrice = parseFloat(pricePercentage);
-      setSecondaryMinPrice(newMinPrice);
-      setSecondaryMaxPrice(newMaxPrice);
+      const pricePercentage = (value / 100).toFixed(2)
+      const newMinPrice = Math.max(0, parseFloat(pricePercentage) - 0.25)
+      const newMaxPrice = parseFloat(pricePercentage)
+      setSecondaryMinPrice(newMinPrice)
+      setSecondaryMaxPrice(newMaxPrice)
 
       // Update the selected token in state with the new prices
       const updatedToken = {
         ...selectedToken,
         minPrice: newMinPrice,
         maxPrice: newMaxPrice,
-      };
-      setSelectedToken(updatedToken);
+      }
+      setSelectedToken(updatedToken)
     }
-  };
+  }
 
   const handleConfirmPriceRange = () => {
     if (selectedToken) {
-      const averagePrice = (secondaryMinPrice! + secondaryMaxPrice!) / 2;
-      updateCurrentPrice(averagePrice.toFixed(4));
+      const averagePrice = (secondaryMinPrice! + secondaryMaxPrice!) / 2
+      updateCurrentPrice(averagePrice.toFixed(4))
     }
-  };
+  }
 
   const tokens: Token[] = [
     {
@@ -135,16 +143,16 @@ const AddLiquidity: React.FC<AddLiquidityProps> = ({ isOpen, onClose }) => {
       minPrice: 1,
       maxPrice: 1.2,
     },
-  ];
+  ]
 
   const handleSecondaryTokenSelect = (tokenSymbol: string) => {
-    const selectedToken = tokens.find((token) => token.symbol === tokenSymbol);
+    const selectedToken = tokens.find((token) => token.symbol === tokenSymbol)
     if (selectedToken) {
-      setSelectedToken(selectedToken);
-      setSecondaryMinPrice(selectedToken.minPrice!);
-      setSecondaryMaxPrice(selectedToken.maxPrice!);
+      setSelectedToken(selectedToken)
+      setSecondaryMinPrice(selectedToken.minPrice!)
+      setSecondaryMaxPrice(selectedToken.maxPrice!)
     }
-  };
+  }
 
   const addToken = () => {
     if (
@@ -152,106 +160,74 @@ const AddLiquidity: React.FC<AddLiquidityProps> = ({ isOpen, onClose }) => {
       selectedSecondaryTokens.length < 3 &&
       !selectedSecondaryTokens.some((t) => t.symbol === selectedToken.symbol)
     ) {
-      setSelectedSecondaryTokens([...selectedSecondaryTokens, selectedToken]);
-      setSelectedToken(null);
-      setSecondaryMinPrice(null);
-      setSecondaryMaxPrice(null);
+      setSelectedSecondaryTokens([...selectedSecondaryTokens, selectedToken])
+      setSelectedToken(null)
+      setSecondaryMinPrice(null)
+      setSecondaryMaxPrice(null)
     }
-  };
+  }
 
   const removeSecondaryToken = (token: Token) => {
     setSelectedSecondaryTokens(
       selectedSecondaryTokens.filter((t) => t.symbol !== token.symbol)
-    );
-  };
+    )
+  }
 
   const dropdownItems = tokens.map((token) => ({
     value: token.symbol,
     label: token.symbol,
-  }));
-  // const handleAddLiquidity = async () => {
-  //   if (!addLiquidityContract || !connected) return;
+  }))
 
-  //   const primaryTokenAddress = depositToken.address;
-  //   const amount = depositAmount; // Ensure this is a string or number
-  //   const minPrice = primaryMinPrice!;
-  //   const maxPrice = primaryMaxPrice!;
-
-  //   const tradingTokens = selectedSecondaryTokens.map(token => token.address);
-  //   const tradingMinTokens = selectedSecondaryTokens.map(token => token.minPrice!);
-  //   const tradingMaxTokens = selectedSecondaryTokens.map(token => token.maxPrice!);
-
-  //   // Log the parameters before calling the contract
-  //   console.log("Calling createLiquidityPosition with the following parameters:", {
-  //     primaryTokenAddress,
-  //     minPrice: ethers.parseEther(minPrice?.toString()),
-  //     maxPrice: ethers.parseEther(maxPrice?.toString()),
-  //     amount: ethers.parseEther(amount?.toString()),
-  //     tradingTokens,
-  //     tradingMinTokens,
-  //     tradingMaxTokens,
-  //   });
-
-  //   // try {
-  //   //   const tx = await addLiquidityContract.createLiquidityPosition(
-  //   //     primaryTokenAddress,
-  //   //     ethers.parseEther(minPrice.toString()),
-  //   //     ethers.parseEther(maxPrice.toString()),
-  //   //     ethers.parseEther(amount.toString()),
-  //   //     tradingTokens,
-  //   //     tradingMinTokens,
-  //   //     tradingMaxTokens
-  //   //   );
-
-  //   //   console.log("Transaction sent:", tx);
-  //   //   await tx.wait(); // Wait for the transaction to be mined
-  //   //   console.log("Transaction mined:", tx);
-  //   //   // Handle success (e.g., show a success message or update state)
-  //   // } catch (error) {
-  //   //   // Handle error (e.g., show an error message)
-  //   //   console.error("Error creating liquidity position:", error);
-  //   // }
-  // };
+  const { signer } = useContractStore()
 
   const handleAddLiquidity = async () => {
-    console.log({ addLiquidityContract, connected });
-    if (!addLiquidityContract || !connected) return;
+    try {
+      if (!addLiquidityContract || !connected) return
 
-    const primaryTokenAddress = depositToken.address;
-    const minPrice = primaryMinPrice;
-    const maxPrice = primaryMaxPrice;
-    const amount = depositAmount;
+      const primaryTokenAddress = usdcContractAddress
+      const minPrice = primaryMinPrice || 0
+      const maxPrice = primaryMaxPrice || 0
+      const amount = depositAmount
 
-    const tradingTokens = selectedSecondaryTokens.map((token) => token.address);
-    const tradingMinTokens = selectedSecondaryTokens.map(
-      (token) => token.minPrice!
-    );
-    const tradingMaxTokens = selectedSecondaryTokens.map(
-      (token) => token.maxPrice!
-    );
+      const tradingTokens = selectedSecondaryTokens.map((token) => token.address)
+      const tradingMinTokens = selectedSecondaryTokens.map(
+        (token) => token.minPrice!
+      )
+      const tradingMaxTokens = selectedSecondaryTokens.map(
+        (token) => token.maxPrice!
+      )
 
-    // Log the parameters before calling the contract
-    console.log(
-      "Preparing to call createLiquidityPosition with the following parameters:",
-      {
-        primaryTokenAddress,
-        minPrice,
-        maxPrice,
-        amount,
-        tradingTokens,
-        tradingMinTokens,
-        tradingMaxTokens,
-      }
-    );
+      // Log the parameters before calling the contract
+      console.log(
+        "Preparing to call createLiquidityPosition with the following parameters:",
+        {
+          primaryTokenAddress,
+          minPrice,
+          maxPrice,
+          amount,
+          tradingTokens,
+          tradingMinTokens,
+          tradingMaxTokens,
+        }
+      )
 
-    // Instead of calling the contract, just log a message
-    console.log(
-      "Transaction would be sent now, but it's currently disabled for testing."
-    );
-  };
+      await primaryTokenContract!.approve(
+        addLiquidityAbiContractAddress,
+        ethers.parseEther(depositAmount.toString() + "")
+      )
+      const tx = await addLiquidityContract.createLiquidityPosition(primaryTokenAddress, ethers.parseEther(minPrice.toString()), ethers.parseEther(maxPrice.toString()), ethers.parseEther(amount.toString()), tradingTokens, tradingMinTokens, tradingMaxTokens)
+      await tx.wait()
+      toast.success("Liquidity added successfully")
+      console.log({ tx }, "tx after submission")
 
-  // Call handleAddLiquidity to see the logs
-  handleAddLiquidity();
+    } catch (error) {
+      toast.error("error while adding liquidity")
+    }
+    finally {
+      onClose()
+    }
+  }
+
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -280,9 +256,9 @@ const AddLiquidity: React.FC<AddLiquidityProps> = ({ isOpen, onClose }) => {
                   onChange={(tokenSymbol) => {
                     const selectedToken = tokens.find(
                       (token) => token.symbol === tokenSymbol
-                    );
+                    )
                     if (selectedToken) {
-                      updateDepositToken(selectedToken);
+                      updateDepositToken(selectedToken)
                     }
                   }}
                   className="bg-[#1b1b1b] text-white"
@@ -331,7 +307,7 @@ const AddLiquidity: React.FC<AddLiquidityProps> = ({ isOpen, onClose }) => {
                   )}
                   placeholder="Select Token"
                   value={selectedToken?.symbol || ""}
-                  onChange={handleSecondaryTokenSelect} 
+                  onChange={handleSecondaryTokenSelect}
                   className="bg-[#1b1b1b] text-white"
                 />
 
@@ -440,7 +416,7 @@ const AddLiquidity: React.FC<AddLiquidityProps> = ({ isOpen, onClose }) => {
         </div>
       </DialogContent>
     </Dialog>
-  );
-};
+  )
+}
 
-export default AddLiquidity;
+export default AddLiquidity

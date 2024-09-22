@@ -1,17 +1,17 @@
-import { useState } from "react";
-import { create } from "zustand";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Button } from "@/components/ui/button";
-import { Slider } from "@/components/ui/slider";
-import { useContractStore } from "@/stores/contract/contractStore";
-import { ethers } from "ethers";
-import { stakeDextrContractAddress } from "@/constants/contractAddresses";
-import toast from 'react-hot-toast';
+import { useState } from "react"
+import { create } from "zustand"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Button } from "@/components/ui/button"
+import { Slider } from "@/components/ui/slider"
+import { useContractStore } from "@/stores/contract/contractStore"
+import { ethers } from "ethers"
+import { stakeDextrContractAddress } from "@/constants/contractAddresses"
+import toast from 'react-hot-toast'
 interface StakingStore {
-  stakedBalance: number;
-  unstakedBalance: number;
-  setStakedBalance: (balance: number) => void;
-  setUnstakedBalance: (balance: number) => void;
+  stakedBalance: number
+  unstakedBalance: number
+  setStakedBalance: (balance: number) => void
+  setUnstakedBalance: (balance: number) => void
 }
 
 const useStakingStore = create<StakingStore>((set) => ({
@@ -19,18 +19,18 @@ const useStakingStore = create<StakingStore>((set) => ({
   unstakedBalance: 0,
   setStakedBalance: (balance) => set({ stakedBalance: balance }),
   setUnstakedBalance: (balance) => set({ unstakedBalance: balance }),
-}));
+}))
 
 function StakeAndUnstake() {
   const [isLoading, setIsLoading] = useState<boolean>(false)
-  const [activeTab, setActiveTab] = useState("stake");
+  const [activeTab, setActiveTab] = useState("stake")
   const {
     stakedBalance,
     setStakedBalance,
     setUnstakedBalance,
     unstakedBalance,
-  } = useStakingStore();
-  const [sliderValue, setSliderValue] = useState(0);
+  } = useStakingStore()
+  const [sliderValue, setSliderValue] = useState(0)
   const stakeDextrContract = useContractStore((state) => state.contracts['stakeDextrContract'])
   const dextrContract = useContractStore((state) => state.contracts['dextr'])
 
@@ -38,35 +38,37 @@ function StakeAndUnstake() {
   const handleStake = async () => {
     try {
       setIsLoading(true)
-      const approveTrx = await dextrContract!.approve(stakeDextrContractAddress, ethers.parseEther(sliderValue.toString()));
-      await approveTrx.wait();
-      console.log(approveTrx)
-      const trx = await stakeDextrContract!.stake(ethers.parseEther(sliderValue.toString()));
-      await trx.wait();
-      setStakedBalance(stakedBalance + sliderValue);
+      console.log({ dextrContract })
+      const approveTrx = await dextrContract!.approve(stakeDextrContractAddress, ethers.parseEther(sliderValue.toString()))
+
+      await approveTrx.wait()
+      console.log({ approveTrx })
+      const trx = await stakeDextrContract!.stake(ethers.parseEther(sliderValue.toString()))
+      await trx.wait()
+      setStakedBalance(stakedBalance + sliderValue)
       setIsLoading(false)
-      toast.success("Successfully staked!");
+      toast.success("Successfully staked!")
     } catch (error) {
-      console.error(error);
+      console.error(error)
       setIsLoading(false)
-      toast("Failed to stake tokens.");
+      toast("Failed to stake tokens.")
     }
-  };
+  }
 
   const handleUnstake = async () => {
     try {
       setIsLoading(true)
-      const trx = await stakeDextrContract!.unstake(ethers.parseEther(sliderValue.toString()));
-      await trx.wait();
-      setUnstakedBalance(unstakedBalance + sliderValue);
-      toast.success("Successfully unstaked!");
+      const trx = await stakeDextrContract!.unstake(ethers.parseEther(sliderValue.toString()))
+      await trx.wait()
+      setUnstakedBalance(unstakedBalance + sliderValue)
+      toast.success("Successfully unstaked!")
       setIsLoading(false)
     } catch (error) {
-      console.error(error);
+      console.error(error)
       setIsLoading(false)
-      toast.error("Failed to unstake tokens.");
+      toast.error("Failed to unstake tokens.")
     }
-  };
+  }
 
   return (
     <div className="container mx-auto max-w-2xl">
@@ -122,7 +124,7 @@ function StakeAndUnstake() {
           <TabsContent value="stake">
             <div className="w-full flex mb-4">
               <Button onClick={handleStake} className="w-full">
-                {`${isLoading ? 'Staking...': 'Stake'}`}
+                {`${isLoading ? 'Staking...' : 'Stake'}`}
               </Button>
             </div>
           </TabsContent>
@@ -133,14 +135,14 @@ function StakeAndUnstake() {
                 onClick={handleUnstake}
                 className="w-full bg-red-500 hover:bg-red-700 text-white"
               >
-                {`${isLoading ? 'Unstaking...': 'Unstake'}`}
+                {`${isLoading ? 'Unstaking...' : 'Unstake'}`}
               </Button>
             </div>
           </TabsContent>
         </div>
       </Tabs>
     </div>
-  );
+  )
 }
 
-export default StakeAndUnstake;
+export default StakeAndUnstake

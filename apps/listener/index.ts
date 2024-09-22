@@ -23,9 +23,10 @@ import {
   testRepScoreMinted,
   testDxtrStaked,
   testDxtrUnStaked
-} from './testingScript'
+} from './testingScript.js'
+import { createOrder } from './userService.js'
 
-import { orderBookAbi } from "./abis.js"
+import { orderBookAbi, oracleAbi } from "./abis.js"
 
 dotenv.config()
 
@@ -48,9 +49,31 @@ async function main() {
 
   //   // Create contract instance
   const contract = new ethers.Contract("0x59b670e9fA9D0A427751Af201D676719a970857b", orderBookAbi, provider)
+  const oracleClient = new ethers.Contract("0x3aa5ebb10dc797cac828524e59a333d0a371443c", oracleAbi, provider)
 
-  contract.on("Orderbook__OrderPlaced", (...params) => {
+  contract.on("Orderbook__OrderPlaced", async (...params) => {
     console.log("params Orderbook__OrderPlaced", params)
+    const [outPrice] = await oracleClient.getPrice(19)
+    const [inPrice] = await oracleClient.getPrice(89)
+
+    const outAmount = BigInt(params[2] * params[1]) / BigInt(outPrice / BigInt(1e8))
+
+    params[2] = inPrice
+
+    createOrder(
+      params[3],//traderAddress
+      params[0],//orderId
+      'MARKET',
+      params[4],//inToken
+      params[5],//outToken
+      parseInt(outPrice.toString()), // tokenOutPrice
+      (params[2].toString()),  // tokenInPrice
+      (params[1].toString()),  // tokenInAmount
+      parseInt(outAmount.toString())  // tokenOutAmount
+    )
+
+
+
   })
 
   contract.on("Orderbook__OrderMatched", (...params) => {

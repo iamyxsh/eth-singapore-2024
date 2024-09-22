@@ -1,25 +1,26 @@
-import { create } from "zustand";
+import { usdcContractAddress } from "@/constants/contractAddresses"
+import { create } from "zustand"
 
 export interface Token {
-  name: string;
-  symbol: string;
-  availableBalance: number;
-  address: string;
-  minPrice?: number; // Optional
-  maxPrice?: number; // Optional
+  name: string
+  symbol: string
+  availableBalance: number
+  address: string
+  minPrice?: number // Optional
+  maxPrice?: number // Optional
 }
 
 interface LiquidityState {
-  depositToken: Token;
-  secondaryTokens: Token[];
-  depositAmount: string;
-  currentPrice: string;
-  updateDepositToken: (token: Token) => void;
-  addSecondaryToken: (token: Token) => void;
-  removeSecondaryToken: (token: Token) => void;
-  updateDepositAmount: (amount: string) => void;
-  updateCurrentPrice: (price: string) => void;
-  updateTokenPrices: (symbol: string, minPrice: number, maxPrice: number) => void; // Updated method
+  depositToken: Token
+  secondaryTokens: Token[]
+  depositAmount: string
+  currentPrice: string
+  updateDepositToken: (token: Token) => void
+  addSecondaryToken: (token: Token) => void
+  removeSecondaryToken: (token: Token) => void
+  updateDepositAmount: (amount: string) => void
+  updateCurrentPrice: (price: string) => void
+  updateTokenPrices: (symbol: string, minPrice: number, maxPrice: number) => void // Updated method
 }
 
 export const useLiquidityStore = create<LiquidityState>((set) => ({
@@ -27,7 +28,7 @@ export const useLiquidityStore = create<LiquidityState>((set) => ({
     name: "USD Coin",
     symbol: "USDC",
     availableBalance: 1000,
-    address: "0x1234567890abcdef",
+    address: usdcContractAddress,
     minPrice: 0.6999,
     maxPrice: 1.2997,
   },
@@ -56,7 +57,7 @@ export const useLiquidityStore = create<LiquidityState>((set) => ({
       token.symbol === symbol
         ? { ...token, minPrice, maxPrice }
         : token
-    );
+    )
 
     return {
       secondaryTokens: updatedSecondaryTokens,
@@ -65,9 +66,9 @@ export const useLiquidityStore = create<LiquidityState>((set) => ({
         minPrice: state.depositToken.symbol === symbol ? minPrice : state.depositToken.minPrice,
         maxPrice: state.depositToken.symbol === symbol ? maxPrice : state.depositToken.maxPrice,
       },
-    };
+    }
   }),
-}));
+}))
 
 // Usage example:
 // const { updateTokenPrices } = useLiquidityStore();
