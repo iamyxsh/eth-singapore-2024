@@ -54,10 +54,11 @@ async function main() {
   contract.on("Orderbook__OrderPlaced", async (...params) => {
     console.log("params Orderbook__OrderPlaced", params)
     const [outPrice] = await oracleClient.getPrice(19)
+    const [inPrice] = await oracleClient.getPrice(89)
 
     const outAmount = BigInt(params[2] * params[1]) / BigInt(outPrice / BigInt(1e8))
 
-    console.log("out", params[2], params[1])
+    params[2] = inPrice
 
     createOrder(
       params[3],//traderAddress
@@ -66,8 +67,8 @@ async function main() {
       params[4],//inToken
       params[5],//outToken
       parseInt(outPrice.toString()), // tokenOutPrice
-      params[2],  // tokenInPrice
-      params[1],  // tokenInAmount
+      (params[2].toString()),  // tokenInPrice
+      (params[1].toString()),  // tokenInAmount
       parseInt(outAmount.toString())  // tokenOutAmount
     )
 
