@@ -6,7 +6,7 @@ import { Slider } from "@/components/ui/slider";
 import { useContractStore } from "@/stores/contract/contractStore";
 import { ethers } from "ethers";
 import { stakeDextrContractAddress } from "@/constants/contractAddresses";
-
+import toast from 'react-hot-toast';
 interface StakingStore {
   stakedBalance: number;
   unstakedBalance: number;
@@ -45,11 +45,11 @@ function StakeAndUnstake() {
       await trx.wait();
       setStakedBalance(stakedBalance + sliderValue);
       setIsLoading(false)
-      window.alert("Successfully staked!");
+      toast.success("Successfully staked!");
     } catch (error) {
       console.error(error);
       setIsLoading(false)
-      window.alert("Failed to stake tokens.");
+      toast("Failed to stake tokens.");
     }
   };
 
@@ -59,12 +59,12 @@ function StakeAndUnstake() {
       const trx = await stakeDextrContract!.unstake(ethers.parseEther(sliderValue.toString()));
       await trx.wait();
       setUnstakedBalance(unstakedBalance + sliderValue);
-      window.alert("Successfully unstaked!");
+      toast.success("Successfully unstaked!");
       setIsLoading(false)
     } catch (error) {
       console.error(error);
       setIsLoading(false)
-      window.alert("Failed to unstake tokens.");
+      toast.error("Failed to unstake tokens.");
     }
   };
 

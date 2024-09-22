@@ -5,7 +5,9 @@ import { useContractStore } from "@/stores/contract/contractStore"
 import { BrowserProvider, ethers } from "ethers"
 import useWalletStore from "@/stores/walletStore"
 import { orderContractAddress, userRegistryContractAddress, wethContractAddress } from "@/constants/contractAddresses"
+import { useTransactionStore } from "@/stores/transactionStore"
 
+import toast from 'react-hot-toast';
 const SwapComponent: React.FC = () => {
   const oracleContract = useContractStore((state) => state.contracts['oracleContract'])
 
@@ -29,7 +31,8 @@ const SwapComponent: React.FC = () => {
     setBuyBalance,
   } = useStore()
   const [activeTab, setActiveTab] = useState("Market")
-  const { signer } = useContractStore()
+  const { signer } = useContractStore();
+  const { addOrder } = useTransactionStore.getState();
   const connectedWalletAddress = useWalletStore((state) => state.address)
 
   const orderbookContract = useContractStore(
@@ -60,6 +63,7 @@ const SwapComponent: React.FC = () => {
   }, [oracleContract])
 
 
+
   const fetchTokenAddress = (token: string) => {
     let contract
     switch (token) {
@@ -76,7 +80,7 @@ const SwapComponent: React.FC = () => {
         contract = wbtchContract
         break
       default:
-        window.alert("Invalid token selected")
+        toast.error("Invalid token selected")
         return
     }
 
@@ -101,7 +105,7 @@ const SwapComponent: React.FC = () => {
         contract = wbtchContract
         break
       default:
-        window.alert("Invalid token selected")
+        toast.error("Invalid token selected")
         return
     }
 
@@ -133,7 +137,6 @@ const SwapComponent: React.FC = () => {
   const tokenOptions: Token[] = ["WBTC", "WETH", "DEXTR", "USDC"]
 
   const placeMarketOrder = async () => {
-    console.log("orderbook", orderbookContract)
     if (orderbookContract) {
       try {
         const inTokenAddress = await fetchTokenAddress(sellCurrency) // replace with actual token address
@@ -155,12 +158,21 @@ const SwapComponent: React.FC = () => {
           outTokenAddress,
           amount
         )
-        await tx.wait()
-        window.alert("Order submitted successfully")
+        await tx.wait();
+        const orderId = tx.hash;
+        addOrder({
+          orderId: orderId,               
+          tokenIn: sellCurrency,       
+          tokenOut: buyCurrency,           
+          tokenInAmount: sellAmount.toString(),  
+          tokenOutAmount: buyAmount.toString(),   
+          status: "Pending",              
+        })
+        toast.success("Order submitted successfully")
       } catch (error) {
         console.error("Error placing market order:", error)
         // Handle error (e.g., show an error notification)
-        window.alert("Order submission failed")
+        toast("Order submission failed")
       }
     }
   }

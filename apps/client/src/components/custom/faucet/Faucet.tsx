@@ -3,7 +3,7 @@ import useWalletStore from "@/stores/walletStore";
 import { BrowserProvider, Contract, ethers, parseUnits } from "ethers";
 import CustomDropdown from "../CustomDropdown";
 import { useContractStore } from "@/stores/contract/contractStore";
-
+import toast from 'react-hot-toast';
 const DextrABI = [
   {
     inputs: [{ name: "_amount", type: "uint256" }],
@@ -56,7 +56,7 @@ const DFaucet: React.FC = () => {
   const importToken = async () => {
     const tokenDetails = TOKEN_ADDRESSES.find((e) => e.tokenName === token);
     if (!tokenDetails) {
-      window.alert("Token details not found");
+      toast.error("Token details not found");
       return;
     }
 
@@ -81,20 +81,20 @@ const DFaucet: React.FC = () => {
         },
       });
 
-      window.alert(
+      toast(
         wasAdded
           ? "Token has been imported successfully"
           : "Token Import Failed"
       );
     } catch (error) {
       console.error(error);
-      window.alert("An error occurred while importing the token.");
+      toast.error("An error occurred while importing the token.");
     }
   };
 
   const getTestTokens = async () => {
     if (!isWalletConnected || !connectedWalletAddress) {
-      window.alert("Wallet is not connected");
+      toast.error("Wallet is not connected");
       return;
     }
   
@@ -120,7 +120,7 @@ const DFaucet: React.FC = () => {
           contract = wbtchContract;
           break;
         default:
-          window.alert("Invalid token selected");
+          toast.error("Invalid token selected");
           setLoading(false);
           return;
       }
@@ -135,10 +135,10 @@ const DFaucet: React.FC = () => {
       console.log({ trx, balanceOf: ethers.formatEther(balanceOf) }, "TRX");
       await trx.wait();
   
-      window.alert("Tokens are on their way to your Wallet");
+      toast.success("Tokens are on their way to your Wallet");
     } catch (error) {
       console.error(error);
-      window.alert("Something went wrong! Please try again.");
+      toast.error("Something went wrong! Please try again.");
     } finally {
       setLoading(false);
     }

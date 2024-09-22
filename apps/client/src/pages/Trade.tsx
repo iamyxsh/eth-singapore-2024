@@ -80,7 +80,7 @@ const Trade = () => {
         </div>
       </div>
       <div className="flex w-full mt-4">
-        <RecentOrdersMatched orders={orders} />
+        <RecentOrdersMatched />
       </div>
     </>
   );
